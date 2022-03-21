@@ -1,11 +1,9 @@
 # BEAT
 **An attempt at optimizing the routine of life using the body's engine** 
 
-------
+
 
 ## See Projects tab for upcoming developments
-
-------
 
 #### The Stack
 * App foundation built using _Django_
@@ -14,8 +12,6 @@
 * Application connected to Databases using _..._
 * Input files provided by _Google Calendar_(Calendar) and _Apple Health_(Heart Rate)
 * Input files parsed with _Python Libraries (listed below)_
-
-------
 
 #### Collecting valid user input
 * Calendar (.ics) parsed using [http://www.markwk.com/data-analysis-for-apple-health.html](this tool)
