@@ -10,8 +10,7 @@
 * User Experience controlled with _React?_ and _Charts.JS_
 * Database managed with _Oracle Developer_
 * Application connected to Databases using _..._
-* Input files provided by _Google Calendar_(Calendar) and _Apple Health_(Heart Rate)
-* Input files parsed with _Python Libraries (listed below)_
+* Input files provided by _Google Calendar_(Calendar) and _Apple Health_(Heart Rate) parsed with _Python Libraries (listed below)_
 
 #### Collecting valid user input
 * Calendar (.ics) parsed using [this tool](http://www.markwk.com/data-analysis-for-apple-health.html)
