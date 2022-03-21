@@ -15,5 +15,5 @@
 
 #### Collecting valid user input
 * Calendar (.ics) parsed using [this tool](http://www.markwk.com/data-analysis-for-apple-health.html)
-... Only events preceded by a category keyword will be counted (not case sensitive): _Work_, _Rest_, _Fitness_, _Eating_, , _Social_ or _Other_
+... * Only events preceded by a category keyword will be counted (not case sensitive): _Work_, _Rest_, _Fitness_, _Eating_, , _Social_ or _Other_
 * Heart Rate (.xml) parsed using [this library](https://icalendar.readthedocs.io/en/latest/)
