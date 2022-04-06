@@ -13,4 +13,9 @@ urlpatterns= [
     path('event_data', views.event_data, name='event_data'),
     path('charts_test', views.charts_test, name='charts_test'),
     path('about', views.about, name='about'),
+    path('trend1/', views.trend1, name="trend1"),
+    path('trend2/', views.trend2, name="trend2"),
+    path('trend3/', views.trend3, name="trend3"),
+    path('trend4/', views.trend4, name="trend4"),
+    path('trend5/', views.trend5, name="trend5"),
 ]
