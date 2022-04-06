@@ -5,8 +5,10 @@ import numpy as np
 import io
 import urllib, base64
 
-from .forms import LoginForm, UserRegistrationForm
-from django.contrib.auth import authenticate, login
+from .forms import LoginForm, SignUpForm
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import UserCreationForm 
 
 
 def home(request):
@@ -15,36 +17,41 @@ def home(request):
 def signup(request):
     return render(request, "signup.html")
 
-def registration(request):
-    if request.method == "POST":
-        user_form=UserRegistrationForm(request.POST)
-        if user_form.is_valid():
-            user_form.save()
-            return render(request, "trends.html")
-    else:
-        user_form=UserRegistrationForm()
-    return render(request,'signup.html',{'user_form': user_form})
-
-
+def registration(request): 
+    form = SignUpForm(request.POST) 
+    if form.is_valid(): 
+        form.save() 
+        _username = form.POST.get('username') 
+        _password = form.POST.get('password') 
+        user = authenticate(username=_username, password=_password) 
+        login(request, user) 
+        return redirect('trends') 
+    context = { 
+        'form': form 
+    } 
+    return render(request, 'signup.html', context) 
+ 
 def userLogin(request):
     if request.method == "POST":
-        form=LoginForm(request.POST)
-        if form.is_valid():
-            cd=form.cleaned_data
-            user=authenticate(request,username=cd["username"], password=cd["password"])
-            if user is not None:
-                if user.is_active:
-                    login(request, user)
-                    return render(request, 'trends.html')
-                else:
-                    return render(request,"signup.html")
+        _username=request.POST.get("username")
+        _password=request.POST.get("password")
+        user = authenticate(username=_username, password=_password)
+        if user is not None:
+            if user.is_active:
+                login(request, user)
+                return redirect("home")
             else:
-                return render(request, "login.html")
+                return HttpResponse('Disabled account')
         else:
-            form=LoginForm()
-        return render(request, "login.html",{"form": form})
+            return render(request, 'login.html')            
+    return render(request, 'login.html',)
 
+@login_required
+def userLogout(request):
+    logout(request)
+    return redirect("home")
 
+@login_required
 def trends(request):
 
     # Fisrt graph

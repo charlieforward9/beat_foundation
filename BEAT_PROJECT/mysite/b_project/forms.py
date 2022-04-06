@@ -3,6 +3,8 @@ from django.forms import ModelForm
 from .widget import DatePickerInput
 from django.forms.widgets import EmailInput, PasswordInput
 from django.db import models
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
 
 class dateForm(forms.Form):
     my_date_field = forms.DateField(widget=DatePickerInput)
@@ -27,8 +29,7 @@ class LoginForm(forms.Form):
 #         model = User
 #         fields = ["username", "password", "email", "HRdata", "CalendarData"]
 
-from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.models import User
+
 
 
 # class RegisterForm(UserCreationForm):
@@ -52,3 +53,64 @@ class UserRegistrationForm(forms.ModelForm):
         if cd['password'] != cd['password2']:
             raise forms.ValidationError('Passwords don\'t match.')
         return cd['password2']
+
+# class SignUpForm(UserCreationForm): 
+#     email = forms.EmailField(required=True)
+#     class Meta:
+#         model = User
+#         fields = ['username', 'email', 'password1', 'password2']
+#         def clean_password2(self):
+#             cd = self.cleaned_data
+#             if cd['password'] != cd['password2']:
+#                 raise forms.ValidationError('Passwords don\'t match.')
+#             return cd['password2']
+
+class SignUpForm(UserCreationForm): 
+    def __init__(self, *args, **kwargs): 
+        super().__init__(*args, **kwargs) 
+        self.fields['username'].widget.attrs.update({ 
+            'class': 'form-input', 
+            'required':'', 
+            'name':'username', 
+            'id':'username', 
+            'type':'text', 
+            'placeholder':'John Doe', 
+            'maxlength': '16', 
+            'minlength': '6', 
+            }) 
+        self.fields['email'].widget.attrs.update({ 
+            'class': 'form-input', 
+            'required':'', 
+            'name':'email', 
+            'id':'email', 
+            'type':'email', 
+            'placeholder':'JohnDoe@mail.com', 
+            }) 
+        self.fields['password1'].widget.attrs.update({ 
+            'class': 'form-input', 
+            'required':'', 
+            'name':'password1', 
+            'id':'password1', 
+            'type':'password', 
+            'placeholder':'password', 
+            'maxlength':'22',  
+            'minlength':'8' 
+            }) 
+        self.fields['password2'].widget.attrs.update({ 
+            'class': 'form-input', 
+            'required':'', 
+            'name':'password2', 
+            'id':'password2', 
+            'type':'password', 
+            'placeholder':'password', 
+            'maxlength':'22',  
+            'minlength':'8' 
+            }) 
+ 
+ 
+    username = forms.CharField(max_length=20, label=False) 
+    email = forms.EmailField(max_length=100) 
+ 
+    class Meta: 
+        model = User 
+        fields = ('username', 'email', 'password1', 'password2', )
