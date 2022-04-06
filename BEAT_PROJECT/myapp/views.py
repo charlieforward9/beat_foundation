@@ -88,11 +88,11 @@ def about(request):
 
 
 def charts_test(request):
-    cursor.execute(
-        """SELECT * FROM CRICHARDSON5.BEAT_HEARTRATE"""
-    )
-    df6 = pd.DataFrame(cursor, columns=['username','time_stamp', 'deviceID', 'HRvalue'])
-    df6.drop(['username', 'deviceID'], axis=1, inplace=True)
+    # cursor.execute(
+    #     """SELECT * FROM CRICHARDSON5.BEAT_HEARTRATE"""
+    # )
+    # df6 = pd.DataFrame(cursor, columns=['username','time_stamp', 'deviceID', 'HRvalue'])
+    # df6.drop(['username', 'deviceID'], axis=1, inplace=True)
     # print(df5.head())
     return render(request, 'charts_test.html')
 
