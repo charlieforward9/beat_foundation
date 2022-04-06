@@ -1,0 +1,32 @@
+{% extends 'main.html' %}
+{% block content %}
+    <div class="container">
+    <h1 class="text-center"><u>Event Data</u></h1><br>
+    <table class="table table-dark table-striped">
+      <thead>
+        <tr>
+          <th>iCalID</th>
+          <th>Event Data</th>
+          <th>Start Time</th>
+          <th>End Time</th>
+          <th>Category</th>
+        </tr>
+      </thead>
+      <tbody>
+      <!-- jinja2 Technique -->
+      {% if d %}
+      {% for i in d %}
+        <tr>
+          <td>{{i.iCalID}}</td>
+          <td>{{i.event_data}}</td>
+          <td>{{i.start_time}}</td>
+          <td>{{i.end_time}}</td>
+          <td>{{i.cat}}</td>
+        </tr>
+      {% endfor %}
+      {% endif %}
+      </tbody>
+    </table>
+  </div>
+
+{% endblock %}

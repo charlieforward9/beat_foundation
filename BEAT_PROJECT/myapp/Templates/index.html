@@ -1,0 +1,30 @@
+{% extends 'main.html' %}
+{% block content %}
+    <div class="container">
+    <h1 class="text-center"><u>Customers</u></h1><br>
+    <table class="table table-dark table-striped">
+      <thead>
+        <tr>
+          <th>Username</th>
+          <th>FullName</th>
+          <th>Email</th>
+          <th>Password</th>
+        </tr>
+      </thead>
+      <tbody>
+      <!-- jinja2 Technique -->
+      {% if d %}
+      {% for i in d %}
+        <tr>
+          <td>{{i.username}}</td>
+          <td>{{i.fullname}}</td>
+          <td>{{i.email}}</td>
+          <td>{{i.password}}</td>
+        </tr>
+      {% endfor %}
+      {% endif %}
+      </tbody>
+    </table>
+  </div>
+
+{% endblock %}
