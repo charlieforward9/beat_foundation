@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1> Trend 3</h1>
+<form method="POST">
+    {% csrf_token %}
+    {{ form }}
+    <button type="submit" class="btn btn-outline-dark ml-4">Submit</button>
+  </form>
+  <div class="row">
+    <img class="img-fluid" src="data:image/png;base64,{{ data3 }}" alt="trend 3" >
+  </div>
+{% endblock %}

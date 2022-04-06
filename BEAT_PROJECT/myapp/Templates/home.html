@@ -30,7 +30,23 @@
             <img src="https://audiosciencereview.com/forum/data/avatars/o/5/5182.jpg?1546011841" class="img-fluid" alt="BEAT">
             <h1 class="display-1">BEAT</h1>
             {% if user.is_authenticated %}
-            <a href="trends" type="button" class="btn btn-outline-dark" data-mdb-ripple-color="dark">Find your beat</a>
+            <div class="btn-group btn-group-toggle" data-toggle="buttons">
+              <a href="trend1" class="btn btn-secondary">
+                <input type="radio"> Trend 1
+              </a>
+              <a href="trend2" class="btn btn-secondary">
+                <input type="radio"> Trend 2
+              </a>
+              <a href="trend3" class="btn btn-secondary">
+                <input type="radio"> Trend 3
+              </a>
+              <a href="trend4" class="btn btn-secondary">
+                <input type="radio"> Trend 4
+              </a>
+              <a href="trend5" class="btn btn-secondary">
+                <input type="radio"> Trend 5
+              </a>
+            </div>
           {% else %}
             <a href="signup" type="button" class="btn btn-outline-dark" data-mdb-ripple-color="dark">Find your beat</a>
           {% endif %}
