@@ -14,6 +14,6 @@ urlpatterns= [
     path('charts_test', views.charts_test, name='charts_test'),
     path('about', views.about, name='about'),
     path('trend_one', views.trend_one, name='trend_one'),
-
+    path('trend1/', views.trend1, name="trend1"),
     
 ]

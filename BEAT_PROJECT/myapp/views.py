@@ -1,19 +1,15 @@
 from xml.etree.ElementInclude import include
 from django.shortcuts import render, redirect
-from django.db import models, connection, transaction
-from myapp.models import Customer
-from django.template import Context, loader
+from django.db import connection
 from django.http import HttpResponse
 import pandas as pd
 import json
 import matplotlib.pyplot as plt
-from io import BytesIO
+import io
 import urllib, base64
-import seaborn as sb
-import plotly.express as px
 from plotly.offline import plot
 import plotly.graph_objects as go
-
+from .forms import form1, form2, form3, form4, form5
 
 # Login imports
 from .forms import LoginForm, SignUpForm
@@ -226,27 +222,7 @@ def trend_one(request):
     print(type(day3_df))
 
     final_df = pd.concat([day1_df, day2_df, day3_df])
-    # print(final_df)
-    # plot = sb.barplot(data = final_df)
-    # fig = plot.get_figure()
-    # fig.savefig(plot_file, format = 'png')
-    # plot_file = BytesIO()
-    # plot.figure.savefig(plot_file, format='png')
-    # encoded_file = base64.b64encode(plot_file.getValue())
     
-    # fig = plot(final_df, output_type = 'div')
-    # fig.show()
-    # graph = fig.to_html()
-    # context = {'graph': graph}
-
-    # fig = go.Figure([go.Bar(final_df)])
-    # fig.show()
-    # context = {'fig': fig}
-    # # trace1 = go.Scatter()
-    # fig_test= go.Figure(data=final_df)
-    # plot_div = plot(fig_test, output_type='div', include_plotlyjs=False)
-    # context['plot']=plot_div
-
     # container for all the graphs
     graphs = []
     groups = ['mean','min','max']
@@ -273,7 +249,7 @@ def trend_one(request):
         )
     )
     layout = {
-        'title': 'Title of the figure',
+        'title': 'Aggregate Trends',
         'xaxis_title': 'Max, Min, Avg',
         'yaxis_title': 'Heart Rate',
         'height': 600,
@@ -285,11 +261,40 @@ def trend_one(request):
 
     return render(request, 'trend_one.html', context = {'plot_div': plot_div})
 
-    # # Create figure
-    # fig = go.Figure([go.Bar(x=final_df['HRvalue'])])
-    # print(final_df['HRvalue'])
-    # fig.show()
-    # context['graph'] = fig.to_html()
-    # return context
+@login_required
+def trend1(request):
+    if request.method == 'POST':
+        form = form1(request.POST)
+        if form.is_valid():
+            activity = form.cleaned_data['activity']
+            start = form.cleaned_data['start']
+            end = form.cleaned_data['end']
+            avg = form.cleaned_data['avg']
+            high = form.cleaned_data['high']
+            low = form.cleaned_data['low']
+            print("================ TREND 1 =================")
+            print("User:", request.user.get_username())
+            print("Activity:", activity)
+            print("Start:", start) 
+            print("End:", end) 
+            print("Avg:", avg) 
+            print("High:", high) 
+            print("Low:", low) 
+            print("========================================")
 
-    # return render(request, 'trend_one.html') # , context={'fig':fig}
+            # Query
+            
+            # Graph 
+            plt.plot(range(10))
+            fig = plt.gcf()
+
+            # Convert graph into dtring buffer and then we convert 64 bit code into image
+            buf = io.BytesIO()
+            fig.savefig(buf,format='png')
+            buf.seek(0)
+            string = base64.b64encode(buf.read())
+            uri =  urllib.parse.quote(string)
+            return render(request,'trend1.html',{'data1':uri, 'form':form})
+    else:
+        form = form1()
+    return render(request, 'trend1.html', {'form': form})
