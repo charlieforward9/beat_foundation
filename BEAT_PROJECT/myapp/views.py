@@ -1,3 +1,4 @@
+from xml.etree.ElementInclude import include
 from django.shortcuts import render, redirect
 from django.db import models, connection, transaction
 from myapp.models import Customer
@@ -6,8 +7,12 @@ from django.http import HttpResponse
 import pandas as pd
 import json
 import matplotlib.pyplot as plt
-import io
+from io import BytesIO
 import urllib, base64
+import seaborn as sb
+import plotly.express as px
+from plotly.offline import plot
+
 
 # Login imports
 from .forms import LoginForm, SignUpForm
@@ -183,3 +188,63 @@ def trends(request):
 
     # return render(request,'trends.html',{'data1':uri, 'data2':uri2})
     return render(request,'trends.html',{'data1':uri})
+
+
+# developing the trends
+def trend_one(request):
+    # getting the low, high, and avg for three days
+    # need to be format YEAR-MM-DD
+    day1 = '2021-02-11'
+    # need to create time range
+    day1_start = day1 + ' 00:00:00'
+    day1_end = day1 + ' 23:59:59'
+    day2 = "2021-02-12"
+    day2_start = day2 + ' 00:00:00'
+    day2_end = day2 + ' 23:59:59'
+    day3 = "2021-02-13"
+    day3_start = day3 + ' 00:00:00'
+    day3_end = day3 + ' 23:59:59'
+
+    query = """SELECT * FROM CRICHARDSON5.BEAT_HEARTRATE WHERE time_stamp > %s AND time_stamp < %s"""
+    cursor.execute(query, (day1_start, day1_end, ))
+    day1_df = pd.DataFrame(cursor, columns=['username','time_stamp', 'deviceID', 'HRvalue'])
+    day1_df = day1_df.describe()
+    day1_df.drop(['count', 'std', '25%', '50%', '75%'], inplace=True)
+    print(day1_df)
+
+    cursor.execute(query, (day2_start, day2_end, ))
+    day2_df = pd.DataFrame(cursor, columns=['username','time_stamp', 'deviceID', 'HRvalue'])
+    day2_df = day2_df.describe()
+    day2_df.drop(['count', 'std', '25%', '50%', '75%'], inplace=True)
+    print(day2_df)
+
+    cursor.execute(query, (day3_start, day3_end, ))
+    day3_df = pd.DataFrame(cursor, columns=['username','time_stamp', 'deviceID', 'HRvalue'])
+    day3_df = day3_df.describe()
+    day3_df.drop(['count', 'std', '25%', '50%', '75%'], inplace=True)
+    print(type(day3_df))
+
+    final_df = pd.concat([day1_df, day2_df, day3_df])
+    # print(final_df)
+    # plot = sb.barplot(data = final_df)
+    # fig = plot.get_figure()
+    # fig.savefig(plot_file, format = 'png')
+    # plot_file = BytesIO()
+    # plot.figure.savefig(plot_file, format='png')
+    # encoded_file = base64.b64encode(plot_file.getValue())
+    
+    # fig = plot(final_df, output_type = 'div')
+    # fig.show()
+    # graph = fig.to_html()
+    # context = {'graph': graph}
+
+    fig = px.bar(final_df)
+    fig.show()
+    context = {'fig': fig}
+
+    fig_test= go.Figure(data=final_df, layout=layout)
+    plot_div = plot(fig_test, output_type='div', include_plotlyjs=False)
+    context['plot']=plot_div
+    return context
+
+    # return render(request, 'trend_one.html', context) # , context={'fig':fig}

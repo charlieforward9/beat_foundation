@@ -1,0 +1,15 @@
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+{% extends 'main.html' %}
+{% block content %}
+    <div class="container">
+    <h1 class="text-center"><u>Trend One</u></h1><br>
+    <!-- {% autoescape off %}
+      {{ fig }}
+    {% endautoescape %} -->
+
+    <div class = "col-md-12">{{plot|safe}}</div>
+
+  </div>
+
+{% endblock %}
