@@ -12,6 +12,7 @@ import urllib, base64
 import seaborn as sb
 import plotly.express as px
 from plotly.offline import plot
+import plotly.graph_objects as go
 
 
 # Login imports
@@ -238,13 +239,37 @@ def trend_one(request):
     # graph = fig.to_html()
     # context = {'graph': graph}
 
-    fig = px.bar(final_df)
-    fig.show()
-    context = {'fig': fig}
+    # fig = go.Figure([go.Bar(final_df)])
+    # fig.show()
+    # context = {'fig': fig}
+    # # trace1 = go.Scatter()
+    # fig_test= go.Figure(data=final_df)
+    # plot_div = plot(fig_test, output_type='div', include_plotlyjs=False)
+    # context['plot']=plot_div
 
-    fig_test= go.Figure(data=final_df, layout=layout)
-    plot_div = plot(fig_test, output_type='div', include_plotlyjs=False)
-    context['plot']=plot_div
-    return context
+    # container for all the graphs
+    graphs = []
 
-    # return render(request, 'trend_one.html', context) # , context={'fig':fig}
+    # add the bar graph
+    graphs.append(
+        go.Bar(x=final_df['HRvalue'])
+    )
+    layout = {
+        'title': 'Title of the figure',
+        'xaxis_title': 'X',
+        'yaxis_title': 'Y',
+    }
+    # Getting HTML needed to render the plot.
+    plot_div = plot({'data': graphs, 'layout': layout}, 
+                    output_type='div')
+
+    return render(request, 'trend_one.html', context = {'plot_div': plot_div})
+
+    # # Create figure
+    # fig = go.Figure([go.Bar(x=final_df['HRvalue'])])
+    # print(final_df['HRvalue'])
+    # fig.show()
+    # context['graph'] = fig.to_html()
+    # return context
+
+    # return render(request, 'trend_one.html') # , context={'fig':fig}
