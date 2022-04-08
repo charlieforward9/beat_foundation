@@ -249,15 +249,35 @@ def trend_one(request):
 
     # container for all the graphs
     graphs = []
-
+    groups = ['mean','min','max']
     # add the bar graph
     graphs.append(
-        go.Bar(x=final_df['HRvalue'])
+        go.Bar(
+            x=groups,
+            y=day1_df['HRvalue'],
+            name=day1,
+        )
+    )
+    graphs.append(
+        go.Bar(
+            x=groups,
+            y=day2_df['HRvalue'],
+            name=day2,
+        )
+    )
+    graphs.append(
+        go.Bar(
+            x=groups,
+            y=day3_df['HRvalue'],
+            name=day3,
+        )
     )
     layout = {
         'title': 'Title of the figure',
-        'xaxis_title': 'X',
-        'yaxis_title': 'Y',
+        'xaxis_title': 'Max, Min, Avg',
+        'yaxis_title': 'Heart Rate',
+        'height': 600,
+        'width': 1000,
     }
     # Getting HTML needed to render the plot.
     plot_div = plot({'data': graphs, 'layout': layout}, 
