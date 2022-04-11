@@ -222,7 +222,13 @@ def trend_one(request):
     print(type(day3_df))
 
     final_df = pd.concat([day1_df, day2_df, day3_df])
-    
+
+    # print(day1_df)
+    # print(day2_df)
+    # print(day3_df)
+    # print("trend_one -- testing")
+
+
     # container for all the graphs
     graphs = []
     groups = ['mean','min','max']
@@ -285,16 +291,78 @@ def trend1(request):
             # Query
             
             # Graph 
-            plt.plot(range(10))
-            fig = plt.gcf()
+            # getting the low, high, and avg for three days
+            # need to be format YEAR-MM-DD
+            day1 = '2021-02-11'
+            # need to create time range
+            day1_start = day1 + ' 00:00:00'
+            day1_end = day1 + ' 23:59:59'
+            day2 = "2021-02-12"
+            day2_start = day2 + ' 00:00:00'
+            day2_end = day2 + ' 23:59:59'
+            day3 = "2021-02-13"
+            day3_start = day3 + ' 00:00:00'
+            day3_end = day3 + ' 23:59:59'
 
-            # Convert graph into dtring buffer and then we convert 64 bit code into image
-            buf = io.BytesIO()
-            fig.savefig(buf,format='png')
-            buf.seek(0)
-            string = base64.b64encode(buf.read())
-            uri =  urllib.parse.quote(string)
-            return render(request,'trend1.html',{'data1':uri, 'form':form})
+            query = """SELECT * FROM CRICHARDSON5.BEAT_HEARTRATE WHERE time_stamp > %s AND time_stamp < %s"""
+            cursor.execute(query, (day1_start, day1_end, ))
+            day1_df = pd.DataFrame(cursor, columns=['username','time_stamp', 'deviceID', 'HRvalue'])
+            day1_df = day1_df.describe()
+            day1_df.drop(['count', 'std', '25%', '50%', '75%'], inplace=True)
+            print(day1_df)
+
+            cursor.execute(query, (day2_start, day2_end, ))
+            day2_df = pd.DataFrame(cursor, columns=['username','time_stamp', 'deviceID', 'HRvalue'])
+            day2_df = day2_df.describe()
+            day2_df.drop(['count', 'std', '25%', '50%', '75%'], inplace=True)
+            print(day2_df)
+
+            cursor.execute(query, (day3_start, day3_end, ))
+            day3_df = pd.DataFrame(cursor, columns=['username','time_stamp', 'deviceID', 'HRvalue'])
+            day3_df = day3_df.describe()
+            day3_df.drop(['count', 'std', '25%', '50%', '75%'], inplace=True)
+            print(type(day3_df))
+
+            final_df = pd.concat([day1_df, day2_df, day3_df])
+            # print(final_df)
+            
+            # container for all the graphs
+            graphs = []
+            groups = ['mean','min','max']
+            # add the bar graph
+            graphs.append(
+                go.Bar(
+                    x=groups,
+                    y=day1_df['HRvalue'],
+                    name=day1,
+                )
+            )
+            graphs.append(
+                go.Bar(
+                    x=groups,
+                    y=day2_df['HRvalue'],
+                    name=day2,
+                )
+            )
+            graphs.append(
+                go.Bar(
+                    x=groups,
+                    y=day3_df['HRvalue'],
+                    name=day3,
+                )
+            )
+            layout = {
+                'title': 'Aggregate Trends',
+                'xaxis_title': 'Max, Min, Avg',
+                'yaxis_title': 'Heart Rate',
+                'height': 600,
+                'width': 1000,
+            }
+            # Getting HTML needed to render the plot.
+            plot_div = plot({'data': graphs, 'layout': layout}, 
+                            output_type='div')
+            
+            return render(request,'trend1.html',context = {'plot_div': plot_div, 'form':form})
     else:
         form = form1()
     return render(request, 'trend1.html', {'form': form})
