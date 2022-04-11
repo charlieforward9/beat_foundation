@@ -17,6 +17,9 @@ from django.contrib.auth.forms import UserCreationForm
 
 from .forms import form1, form2, form3, form4, form5
 
+START_TIME = "00:00:00"
+END_TIME = "23:59:59"
+
 cursor = connection.cursor()
 
 # Create your views here.
@@ -185,14 +188,18 @@ def trends(request):
     # return render(request,'trends.html',{'data1':uri, 'data2':uri2})
     return render(request,'trends.html',{'data1':uri})
 
+def getDay(input):
+  temp = input.split(" ", 1)
+  return temp[0]
+
 @login_required
 def trend1(request):
     if request.method == 'POST':
         form = form1(request.POST)
         if form.is_valid():
             activity = form.cleaned_data['activity']
-            start = form.cleaned_data['start']
-            end = form.cleaned_data['end']
+            start = getDay(form.cleaned_data['start'])
+            end = getDay(form.cleaned_data['end'])
             avg = form.cleaned_data['avg']
             high = form.cleaned_data['high']
             low = form.cleaned_data['low']
@@ -230,8 +237,8 @@ def trend2(request):
         if form.is_valid():
             activity1 = form.cleaned_data['activity1']
             activity2 = form.cleaned_data['activity2']
-            start = form.cleaned_data['start']
-            end = form.cleaned_data['end']
+            start = getDay(form.cleaned_data['start'])
+            end = getDay(form.cleaned_data['end'])
             avg = form.cleaned_data['avg']
             high = form.cleaned_data['high']
             low = form.cleaned_data['low']
@@ -269,8 +276,8 @@ def trend3(request):
         form = form3(request.POST)
         if form.is_valid():
             activity = form.cleaned_data['activity']
-            start = form.cleaned_data['start']
-            end = form.cleaned_data['end']
+            start = getDay(form.cleaned_data['start'])
+            end = getDay(form.cleaned_data['end'])
             avg = form.cleaned_data['avg']
             high = form.cleaned_data['high']
             low = form.cleaned_data['low']
@@ -305,8 +312,8 @@ def trend4(request):
     if request.method == 'POST':
         form = form4(request.POST)
         if form.is_valid():
-            start = form.cleaned_data['start']
-            end = form.cleaned_data['end']
+            start = getDay(form.cleaned_data['start'])
+            end = getDay(form.cleaned_data['end'])
             avg = form.cleaned_data['avg']
             high = form.cleaned_data['high']
             low = form.cleaned_data['low']
@@ -340,8 +347,8 @@ def trend5(request):
     if request.method == 'POST':
         form = form5(request.POST)
         if form.is_valid():
-            start = form.cleaned_data['start']
-            end = form.cleaned_data['end']
+            start = getDay(form.cleaned_data['start'])
+            end = getDay(form.cleaned_data['end'])
             print("================ TREND 5 =================")
             print("User:", request.user.get_username())
             print("Start:", start) 
