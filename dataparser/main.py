@@ -8,7 +8,6 @@ Licence: MIT
 https://medium.com/@bobbie.wxy/how-to-convert-calendar-ics-to-csv-excel-using-python-3-steps-ca3903530aa3
 http://www.markwk.com/data-analysis-for-apple-health.html
 """
-import calendar
 from operator import truediv
 import os
 import re
@@ -17,7 +16,6 @@ import random
 from time import time
 from xml.etree import ElementTree
 from collections import Counter, OrderedDict
-import icalendar # install icalender using following command: pip3 install icalendar
 from datetime import date, datetime, timedelta
 from pytz import UTC, timezone   # timezone
 from csv_ical import Convert
