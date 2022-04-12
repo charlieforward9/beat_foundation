@@ -17,4 +17,4 @@
    * _Work_, _Rest_, _Fitness_, _Eating_, _Social_ or _Other_
 * Heart Rate (.xml) 
 
-Duplicates are automatically removed by the parser.
+Duplicate rows are automatically removed by the parser.
