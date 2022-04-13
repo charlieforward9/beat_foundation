@@ -306,22 +306,22 @@ def trend1(request):
 
             query = """SELECT * FROM CRICHARDSON5.BEAT_HEARTRATE WHERE time_stamp > %s AND time_stamp < %s"""
             cursor.execute(query, (day1_start, day1_end, ))
-            day1_df = pd.DataFrame(cursor, columns=['username','time_stamp', 'deviceID', 'HRvalue'])
+            day1_df = pd.DataFrame(cursor, columns=['USERID','time_stamp','HRvalue'])
             day1_df = day1_df.describe()
             day1_df.drop(['count', 'std', '25%', '50%', '75%'], inplace=True)
             print(day1_df)
 
             cursor.execute(query, (day2_start, day2_end, ))
-            day2_df = pd.DataFrame(cursor, columns=['username','time_stamp', 'deviceID', 'HRvalue'])
+            day2_df = pd.DataFrame(cursor, columns=['USERID','time_stamp','HRvalue'])
             day2_df = day2_df.describe()
             day2_df.drop(['count', 'std', '25%', '50%', '75%'], inplace=True)
-            print(day2_df)
+            # print(day2_df)
 
             cursor.execute(query, (day3_start, day3_end, ))
-            day3_df = pd.DataFrame(cursor, columns=['username','time_stamp', 'deviceID', 'HRvalue'])
+            day3_df = pd.DataFrame(cursor, columns=['USERID','time_stamp','HRvalue'])
             day3_df = day3_df.describe()
             day3_df.drop(['count', 'std', '25%', '50%', '75%'], inplace=True)
-            print(type(day3_df))
+            # print(type(day3_df))
 
             final_df = pd.concat([day1_df, day2_df, day3_df])
             # print(final_df)
