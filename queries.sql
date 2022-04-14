@@ -1,12 +1,14 @@
 --Put queries here
 --Q1
-SELECT AVG(HRvalue), MIN(HRvalue), MAX(HRvalue), a.CAT
-FROM (beat_event e JOIN beat_heartrate h (
-    ON e.userID = h.userID AND
-    h.time_stamp BETWEEN e.tstart AND e.tend)) a
-WHERE a.userID='<USERID>' AND
-    a.tstart BETWEEN '<START TIMESTAMP>' AND '<END TIMESTAMP>'
-GROUP BY a.cat
+SELECT ROUND(AVG(CRICHARDSON5.beat_heartrate.HRVALUE)) AS AVG_HR, MIN(CRICHARDSON5.beat_heartrate.HRVALUE) as MIN_HR, MAX(CRICHARDSON5.beat_heartrate.HRVALUE) AS MAX_HR
+FROM CRICHARDSON5.beat_event JOIN CRICHARDSON5.beat_heartrate
+ON (
+    crichardson5.beat_event.USERID = crichardson5.beat_heartrate.USERID AND
+    crichardson5.beat_heartrate.TIME_STAMP BETWEEN crichardson5.beat_event.TSTART AND crichardson5.beat_event.TEND
+    )
+WHERE crichardson5.beat_event.USERID = '0.8302870117189518' AND
+      crichardson5.beat_event.TSTART BETWEEN  '2021-06-1 00:00:00' AND '2021-06-5 23:59:59' AND
+        crichardson5.beat_event.CAT = 'work';
 
 
 --Q2 TODO format for remote access
@@ -32,15 +34,17 @@ GROUP BY ce.tstart --Get all relevant HR data for each rest session
 ORDER BY ce.tstart;
 
 
+
 --Q3
-SELECT *
-FROM crichardson5.beat_heartrate, crichardson5.beat_event, crichardson5.beat_customer
-WHERE crichardson5.beat_heartrate.USERID = crichardson5.beat_event.USERID AND
-    crichardson5.beat_customer.USERID = crichardson5.beat_heartrate.USERID AND
-    crichardson5.beat_customer.USERID = crichardson5.beat_event.USERID AND 
-    crichardson5.beat_event.CAT = 'fitness' AND
-    crichardson5.beat_event.TSTART BETWEEN '2021-02-11 00:00:00' AND '2021-02-11 23:59:59' AND
-    crichardson5.beat_heartrate.TIME_STAMP BETWEEN '2021-02-11 00:00:00' AND '2021-02-11 23:59:59';
+SELECT TO_TIMESTAMP(TSTART, 'YYYY-MM-DD HH24:MI:SS') AS time, MAX(HRVALUE), TO_TIMESTAMP(MAX(TEND), 'YYYY-MM-DD HH24:MI:SS') - TO_TIMESTAMP(MIN(TSTART), 'YYYY-MM-DD HH24:MI:SS') AS Duration
+FROM crichardson5.beat_heartrate , crichardson5.beat_event
+WHERE crichardson5.beat_event.USERID = crichardson5.beat_heartrate.USERID AND
+    crichardson5.beat_event.USERID = crichardson5.beat_event.USERID AND 
+    crichardson5.beat_event.CAT = 'rest' AND
+    crichardson5.beat_event.TSTART BETWEEN '2020-06-21 00:00:00' AND '2020-06-29 23:59:59' AND
+    crichardson5.beat_heartrate.TIME_STAMP BETWEEN crichardson5.beat_event.TSTART AND crichardson5.beat_event.TEND
+GROUP BY crichardson5.beat_event.tstart
+ORDER BY crichardson5.beat_event.tstart ASC;
 
 
 --Q4
