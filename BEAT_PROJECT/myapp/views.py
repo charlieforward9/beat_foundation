@@ -371,8 +371,8 @@ def trend4(request):
     if request.method == 'POST':
         form = form4(request.POST)
         if form.is_valid():
-            start = getDay(form.cleaned_data['start'])
-            end = getDay(form.cleaned_data['end'])
+            start = form.cleaned_data['start']
+            end = form.cleaned_data['end']
             avg = form.cleaned_data['avg']
             high = form.cleaned_data['high']
             low = form.cleaned_data['low']
@@ -384,19 +384,87 @@ def trend4(request):
             print("High:", high) 
             print("Low:", low) 
             print("========================================")
-
-            # Query
             
-            # Graph 
-            plt.plot(range(40))
-            fig = plt.gcf()
-            #convert graph into dtring buffer and then we convert 64 bit code into image
-            buf = io.BytesIO()
-            fig.savefig(buf,format='png')
-            buf.seek(0)
-            string = base64.b64encode(buf.read())
-            uri =  urllib.parse.quote(string)
-            return render(request,'trend4.html',{'data4':uri, 'form':form})
+            if not start > end:
+                # set the username
+                if request.user.get_username() == 'Charbo':
+                    userid = '0.8302870117189518'
+                else: # Cam
+                    userid = '0.26777655249889387'
+                # Graph 
+                date_time = start.strftime("%Y-%m-%d %H:%M:%S")
+                date_time = date_time[0:10]
+                print(date_time)
+                all_days = []
+                day_start_test = date_time + ' 00:00:00'
+                date_time = end.strftime("%Y-%m-%d %H:%M:%S")
+                date_time = date_time[0:10]
+                day_end_test = date_time + ' 23:59:59'
+                print(day_start_test)
+                print(day_end_test)
+                print(userid)
+                # Query
+                query4 = """SELECT TEND, ROUND(AVG(HRVALUE)) AS average, MIN(HRVALUE) AS min, MAX(HRVALUE) AS max, TO_TIMESTAMP(MAX(TEND), 'YYYY-MM-DD HH24:MI:SS') - TO_TIMESTAMP(MIN(TSTART), 'YYYY-MM-DD HH24:MI:SS') AS Duration
+                            FROM (
+                            SELECT *
+                            FROM CRICHARDSON5.beat_event E, CRICHARDSON5.beat_heartrate H
+                            WHERE E.TEND BETWEEN %s AND %s AND
+                            E.CAT = 'rest' AND
+                            E.USERID = H.USERID AND
+                            E.USERID = %s AND
+                            H.time_stamp BETWEEN E.TSTART AND E.TEND
+                            )
+                            GROUP BY TEND"""
+                cursor.execute(query4, (day_start_test, day_end_test, userid,)) #, (userid, day_start_test, day_end_test)
+                # cursor.execute(test_query_1,(test_userid, test_day_start, test_day_end,))
+                day_df = pd.DataFrame(cursor, columns=['TEND','AVERAGE', 'MIN', 'MAX', 'DURATION'])
+                print(day_df)
+                day_df = day_df.sort_values(by=['TEND'])
+                day_df = day_df.groupby("DURATION").mean().reset_index()
+                for i, row in day_df.iterrows():
+                    all_days.append(str(row['DURATION'])[7:14])
+                print(all_days)
+                avg_days = day_df['AVERAGE']
+                min_days = day_df['MIN']
+                max_days = day_df['MAX']
+                graphs = []
+                # add the bar graph
+                if avg:
+                    graphs.append(
+                        go.Scatter(
+                            x=all_days,
+                            y=avg_days,
+                            name='Mean Heart Rate',
+                        )
+                    )
+                if low:
+                    graphs.append(
+                        go.Scatter(
+                            x=all_days,
+                            y=min_days,
+                            name='Min Heart Rate',
+                        )
+                    )
+                if high:
+                    graphs.append(
+                        go.Scatter(
+                            x=all_days,
+                            y=max_days,
+                            name='Max Heart Rate',
+                        )
+                    )
+                layout = {
+                    'title': 'HR During Sleep',
+                    'xaxis_title': 'Sleep Duration (HH:MI:SS)',
+                    'yaxis_title': 'Heart Rate',
+                    'height': 600,
+                    'width': 1000,
+                }
+
+                
+                plot_div = plot({'data': graphs, 'layout': layout}, 
+                                output_type='div')
+            return render(request,'trend4.html',context = {'plot_div': plot_div, 'form':form})
     else:
         form = form4()
     return render(request, 'trend4.html', {'form': form})
