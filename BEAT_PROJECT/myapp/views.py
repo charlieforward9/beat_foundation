@@ -16,30 +16,34 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 
+from .forms import form1, form2, form3, form4, form5
+
+START_TIME = "00:00:00"
+END_TIME = "23:59:59"
+
 cursor = connection.cursor()
 
 # imported functionallity
-
 def home(request):
     return render(request, "home.html")
 
 def signup(request):
     return render(request, "signup.html")
 
-def registration(request):
-    form = SignUpForm(request.POST)
-    if form.is_valid():
-        form.save()
-        _username = form.POST.get('username')
-        _password = form.POST.get('password')
-        user = authenticate(username=_username, password=_password)
-        login(request, user)
-        return redirect('trends')
-    context = {
-        'form': form
-    }
-    return render(request, 'signup.html', context)
-
+def registration(request): 
+    form = SignUpForm(request.POST) 
+    if form.is_valid(): 
+        form.save() 
+        _username = form.POST.get('username') 
+        _password = form.POST.get('password') 
+        user = authenticate(username=_username, password=_password) 
+        login(request, user) 
+        return redirect('trends') 
+    context = { 
+        'form': form 
+    } 
+    return render(request, 'signup.html', context) 
+ 
 def userLogin(request):
     if request.method == "POST":
         _username=request.POST.get("username")
@@ -52,7 +56,7 @@ def userLogin(request):
             else:
                 return HttpResponse('Disabled account')
         else:
-            return render(request, 'login.html')
+            return render(request, 'login.html')            
     return render(request, 'login.html',)
 
 @login_required
@@ -198,16 +202,98 @@ def trend3(request):
     if request.method == 'POST':
         form = form3(request.POST)
         if form.is_valid():
-            query3 = """ SELECT TO_TIMESTAMP(TSTART, 'YYYY-MM-DD HH24:MI:SS') AS start_time, TO_TIMESTAMP(TEND, 'YYYY-MM-DD HH24:MI:SS') AS end_time, MAX(HRVALUE), TO_TIMESTAMP(MAX(TEND), 'YYYY-MM-DD HH24:MI:SS') - TO_TIMESTAMP(MIN(TSTART), 'YYYY-MM-DD HH24:MI:SS') AS Duration 
-                        FROM crichardson5.beat_heartrate , crichardson5.beat_event
-                        WHERE crichardson5.beat_event.USERID = crichardson5.beat_heartrate.USERID AND
-                            crichardson5.beat_event.USERID = crichardson5.beat_event.USERID AND 
-                            crichardson5.beat_event.USERID = '0.8302870117189518' AND
-                            crichardson5.beat_event.CAT = 'fitness' AND
-                            crichardson5.beat_event.TSTART BETWEEN '2021-06-21 00:00:00' AND '2021-06-29 23:59:59' AND
-                            crichardson5.beat_heartrate.TIME_STAMP BETWEEN crichardson5.beat_event.TSTART AND crichardson5.beat_event.TEND
-                        GROUP BY crichardson5.beat_event.tstart, crichardson5.beat_event.tend
-                        ORDER BY crichardson5.beat_event.tstart ASC"""
+            activity = form.cleaned_data['activity']
+            start = getDay(form.cleaned_data['start'])
+            end = getDay(form.cleaned_data['end'])
+            avg = form.cleaned_data['avg']
+            high = form.cleaned_data['high']
+            low = form.cleaned_data['low']
+            print("================ TREND 3 =================")
+            print("User:", request.user.get_username())
+            print("Activity:", activity)
+            print("Start:", start) 
+            print("End:", end) 
+            print("Avg:", avg) 
+            print("High:", high) 
+            print("Low:", low) 
+            print("========================================")
+
+            # Query
+            
+            # Graph 
+            plt.plot(range(30))
+            fig = plt.gcf()
+            #convert graph into dtring buffer and then we convert 64 bit code into image
+            buf = io.BytesIO()
+            fig.savefig(buf,format='png')
+            buf.seek(0)
+            string = base64.b64encode(buf.read())
+            uri =  urllib.parse.quote(string)
+            return render(request,'trend3.html',{'data3':uri, 'form':form})
     else:
         form = form3()
     return render(request, 'trend3.html', {'form': form})
+
+@login_required
+def trend4(request):
+    if request.method == 'POST':
+        form = form4(request.POST)
+        if form.is_valid():
+            start = getDay(form.cleaned_data['start'])
+            end = getDay(form.cleaned_data['end'])
+            avg = form.cleaned_data['avg']
+            high = form.cleaned_data['high']
+            low = form.cleaned_data['low']
+            print("================ TREND 4 =================")
+            print("User:", request.user.get_username())
+            print("Start:", start) 
+            print("End:", end) 
+            print("Avg:", avg) 
+            print("High:", high) 
+            print("Low:", low) 
+            print("========================================")
+
+            # Query
+            
+            # Graph 
+            plt.plot(range(40))
+            fig = plt.gcf()
+            #convert graph into dtring buffer and then we convert 64 bit code into image
+            buf = io.BytesIO()
+            fig.savefig(buf,format='png')
+            buf.seek(0)
+            string = base64.b64encode(buf.read())
+            uri =  urllib.parse.quote(string)
+            return render(request,'trend4.html',{'data4':uri, 'form':form})
+    else:
+        form = form4()
+    return render(request, 'trend4.html', {'form': form})
+
+@login_required
+def trend5(request):
+    if request.method == 'POST':
+        form = form5(request.POST)
+        if form.is_valid():
+            start = getDay(form.cleaned_data['start'])
+            end = getDay(form.cleaned_data['end'])
+            print("================ TREND 5 =================")
+            print("User:", request.user.get_username())
+            print("Start:", start) 
+            print("End:", end) 
+            print("========================================")
+
+            # Query
+            
+            # Graph 
+            plt.plot(range(50))
+            fig = plt.gcf()
+            #convert graph into dtring buffer and then we convert 64 bit code into image
+            buf = io.BytesIO()
+            fig.savefig(buf,format='png')
+            buf.seek(0)
+            string = base64.b64encode(buf.read())
+            uri =  urllib.parse.quote(string)
+            return render(request,'trend5.html',{'data5':uri, 'form':form})
+    else:
+        form = form5()
+    return render(request, 'trend5.html', {'form': form})
