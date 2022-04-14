@@ -141,7 +141,7 @@ def trend1(request):
                 day_df = pd.DataFrame(cursor, columns=['AVG_HR','MIN_HR', 'MAX_HR'])
 
                 if not day_df['AVG_HR'][0] == None:
-                    print(day_df)
+                    # print(day_df)
                     # day_df = day_df.loc[day_df['CAT'] == activity]
                     all_days.append(date_time)
                     avg_days.append(day_df['AVG_HR'][0])
@@ -191,3 +191,23 @@ def trend1(request):
     else:
         form = form1()
     return render(request, 'trend1.html', {'form': form})
+
+
+@login_required
+def trend3(request):
+    if request.method == 'POST':
+        form = form3(request.POST)
+        if form.is_valid():
+            query3 = """ SELECT TO_TIMESTAMP(TSTART, 'YYYY-MM-DD HH24:MI:SS') AS start_time, TO_TIMESTAMP(TEND, 'YYYY-MM-DD HH24:MI:SS') AS end_time, MAX(HRVALUE), TO_TIMESTAMP(MAX(TEND), 'YYYY-MM-DD HH24:MI:SS') - TO_TIMESTAMP(MIN(TSTART), 'YYYY-MM-DD HH24:MI:SS') AS Duration 
+                        FROM crichardson5.beat_heartrate , crichardson5.beat_event
+                        WHERE crichardson5.beat_event.USERID = crichardson5.beat_heartrate.USERID AND
+                            crichardson5.beat_event.USERID = crichardson5.beat_event.USERID AND 
+                            crichardson5.beat_event.USERID = '0.8302870117189518' AND
+                            crichardson5.beat_event.CAT = 'fitness' AND
+                            crichardson5.beat_event.TSTART BETWEEN '2021-06-21 00:00:00' AND '2021-06-29 23:59:59' AND
+                            crichardson5.beat_heartrate.TIME_STAMP BETWEEN crichardson5.beat_event.TSTART AND crichardson5.beat_event.TEND
+                        GROUP BY crichardson5.beat_event.tstart, crichardson5.beat_event.tend
+                        ORDER BY crichardson5.beat_event.tstart ASC"""
+    else:
+        form = form3()
+    return render(request, 'trend3.html', {'form': form})
