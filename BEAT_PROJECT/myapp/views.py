@@ -198,6 +198,43 @@ def trend1(request):
 
 
 @login_required
+def trend2(request):
+    if request.method == 'POST':
+        form = form2(request.POST)
+        if form.is_valid():
+            activity = form.cleaned_data['activity']
+            start = getDay(form.cleaned_data['start'])
+            end = getDay(form.cleaned_data['end'])
+            avg = form.cleaned_data['avg']
+            high = form.cleaned_data['high']
+            low = form.cleaned_data['low']
+            print("================ TREND 3 =================")
+            print("User:", request.user.get_username())
+            print("Activity:", activity)
+            print("Start:", start) 
+            print("End:", end) 
+            print("Avg:", avg) 
+            print("High:", high) 
+            print("Low:", low) 
+            print("========================================")
+
+            # Query
+            
+            # Graph 
+            plt.plot(range(30))
+            fig = plt.gcf()
+            #convert graph into dtring buffer and then we convert 64 bit code into image
+            buf = io.BytesIO()
+            fig.savefig(buf,format='png')
+            buf.seek(0)
+            string = base64.b64encode(buf.read())
+            uri =  urllib.parse.quote(string)
+            return render(request,'trend2.html',{'data2':uri, 'form':form})
+    else:
+        form = form2()
+    return render(request, 'trend2.html', {'form': form})
+
+@login_required
 def trend3(request):
     if request.method == 'POST':
         form = form3(request.POST)
