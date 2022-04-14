@@ -1,4 +1,4 @@
-"""This is a huge mess of a file. Dont try to fix it... Use the original file, link below."""
+"""This is a huge mess of a file. Dont try to fix it... To parse health data, use the original file, link below. To parse calendar data, you can pull the make_csv function, but be careful."""
 
 """  SOURCES
 applehealthdata.py: Extract data from Apple Health App's export.xml.
