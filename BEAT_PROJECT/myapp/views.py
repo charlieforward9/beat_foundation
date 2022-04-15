@@ -359,6 +359,7 @@ def trend3(request):
                 cursor.execute(query3, (userid,day_start_test, day_end_test, ))
                 # cursor.execute(test_query_1,(test_userid, test_day_start, test_day_end,))
                 day_df = pd.DataFrame(cursor, columns=['START_TIME','END_TIME', 'MAX_HR', 'DURATION'])
+                print(day_df)
                 # day_df = day_df.loc[day_df['CAT'] == activity]
                 # if not day_df['AVG_HR'][0] == None:
                 #     print(day_df)

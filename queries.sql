@@ -60,14 +60,15 @@ ORDER BY ce.tstart;
                         """
                         
 --Q3
-SELECT TO_TIMESTAMP(TSTART, 'YYYY-MM-DD HH24:MI:SS') AS time, MAX(HRVALUE), TO_TIMESTAMP(MAX(TEND), 'YYYY-MM-DD HH24:MI:SS') - TO_TIMESTAMP(MIN(TSTART), 'YYYY-MM-DD HH24:MI:SS') AS Duration
+SELECT TO_TIMESTAMP(TSTART, 'YYYY-MM-DD HH24:MI:SS') AS start_time, TO_TIMESTAMP(TEND, 'YYYY-MM-DD HH24:MI:SS') AS end_time, MAX(HRVALUE), TO_TIMESTAMP(MAX(TEND), 'YYYY-MM-DD HH24:MI:SS') - TO_TIMESTAMP(MIN(TSTART), 'YYYY-MM-DD HH24:MI:SS') AS Duration 
 FROM crichardson5.beat_heartrate , crichardson5.beat_event
 WHERE crichardson5.beat_event.USERID = crichardson5.beat_heartrate.USERID AND
-    crichardson5.beat_event.CAT = 'rest' AND
+    crichardson5.beat_event.USERID = '0.26777655249889387' AND
+    crichardson5.beat_event.CAT = 'fitness' AND
     crichardson5.beat_event.TSTART BETWEEN '2020-06-21 00:00:00' AND '2020-06-29 23:59:59' AND
     crichardson5.beat_heartrate.TIME_STAMP BETWEEN crichardson5.beat_event.TSTART AND crichardson5.beat_event.TEND
-GROUP BY crichardson5.beat_event.tstart
-ORDER BY crichardson5.beat_event.tstart ASC;
+GROUP BY crichardson5.beat_event.tstart, crichardson5.beat_event.tend
+ORDER BY crichardson5.beat_event.tstart ASC
 
 
 --Q4
