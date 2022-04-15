@@ -239,20 +239,12 @@ def trend3(request):
     if request.method == 'POST':
         form = form3(request.POST)
         if form.is_valid():
-            activity = form.cleaned_data['activity']
             start = form.cleaned_data['start']
             end = form.cleaned_data['end']
-            avg = form.cleaned_data['avg']
-            high = form.cleaned_data['high']
-            low = form.cleaned_data['low']
             print("================ TREND 3 =================")
             print("User:", request.user.get_username())
-            print("Activity:", activity)
             print("Start:", start) 
             print("End:", end) 
-            print("Avg:", avg) 
-            print("High:", high) 
-            print("Low:", low) 
             print("========================================")
 
             if not start > end:
@@ -262,9 +254,6 @@ def trend3(request):
                     userid = '0.8302870117189518'
                 else: # Cam
                     userid = '0.26777655249889387'
-
-                # Query
-                activity = activity.lower()
                 # Graph 
                 date_time = start.strftime("%Y-%m-%d %H:%M:%S")
                 date_time = date_time[0:10]
@@ -272,8 +261,8 @@ def trend3(request):
                 date_time = end.strftime("%Y-%m-%d %H:%M:%S")
                 date_time = date_time[0:10]
                 day_end_test = date_time + ' 23:59:59'
-                print(day_start_test)
-                print(day_end_test)
+                # print(day_start_test)
+                # print(day_end_test)
 
                 # Query
                 query3 = """ SELECT TO_TIMESTAMP(TSTART, 'YYYY-MM-DD HH24:MI:SS') AS start_time, TO_TIMESTAMP(TEND, 'YYYY-MM-DD HH24:MI:SS') AS end_time, MAX(HRVALUE), TO_TIMESTAMP(MAX(TEND), 'YYYY-MM-DD HH24:MI:SS') - TO_TIMESTAMP(MIN(TSTART), 'YYYY-MM-DD HH24:MI:SS') AS Duration 
@@ -330,17 +319,17 @@ def trend3(request):
                 #         # sort the df by the START_TIME
                 #         day_df.sort_values(by=['START_TIME'], inplayce=True)
                 day_df = day_df.groupby("DURATION").mean().reset_index()
-                print(day_df)
+                # print(day_df)
 
                 total_durations = []
                 for i, row in day_df.iterrows():
                     total_durations.append(str(row['DURATION'])[7:14])
-                    print(row['DURATION'])
+                    # print(row['DURATION'])
 
                 
                 
                 graphs = []
-                print(total_durations)
+                # print(total_durations)
                 total_HRs = day_df['MAX_HR']
         
                 # Graph 
@@ -499,7 +488,7 @@ def trend5(request):
                 print(day_start,day_end)
 
                 query ="""SELECT 
-                            ROUND((avghr_d/avghr_r) * 100) AS recovery_score,
+                            ROUND(100 - (((avghr_d-avghr_r)/avghr_r)*100)) as recovery_score,
                             DAY 
                             FROM
                                 -- resting HR avg for all days in the given range
