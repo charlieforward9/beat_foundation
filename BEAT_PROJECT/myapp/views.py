@@ -474,26 +474,81 @@ def trend5(request):
     if request.method == 'POST':
         form = form5(request.POST)
         if form.is_valid():
-            start = getDay(form.cleaned_data['start'])
-            end = getDay(form.cleaned_data['end'])
+            start = (form.cleaned_data['start'])
+            end = (form.cleaned_data['end'])
             print("================ TREND 5 =================")
             print("User:", request.user.get_username())
             print("Start:", start) 
             print("End:", end) 
             print("========================================")
+            if not start > end:
 
-            # Query
-            
-            # Graph 
-            plt.plot(range(50))
-            fig = plt.gcf()
-            #convert graph into dtring buffer and then we convert 64 bit code into image
-            buf = io.BytesIO()
-            fig.savefig(buf,format='png')
-            buf.seek(0)
-            string = base64.b64encode(buf.read())
-            uri =  urllib.parse.quote(string)
-            return render(request,'trend5.html',{'data5':uri, 'form':form})
+                # set the username
+                if request.user.get_username() == 'Charbo':
+                    userid = '0.8302870117189518'
+                else: # Cam
+                    userid = '0.26777655249889387'
+
+                # Graph 
+                s_date_time = start.strftime("%Y-%m-%d %H:%M:%S")
+                s_date_time = s_date_time[0:10]
+                e_date_time = end.strftime("%Y-%m-%d %H:%M:%S")
+                e_date_time = e_date_time[0:10]
+                day_start = s_date_time + START_TIME
+                day_end = e_date_time + END_TIME
+                print(day_start,day_end)
+
+                query ="""SELECT 
+                            ROUND((avghr_d/avghr_r) * 100) AS recovery_score,
+                            DAY 
+                            FROM
+                                -- resting HR avg for all days in the given range
+                                (SELECT 
+                                        ROUND(AVG(hrvalue)) AS avghr_r, 
+                                        crichardson5.beat_heartrate.userid AS id
+                                    FROM crichardson5.beat_heartrate, crichardson5.beat_event
+                                    WHERE
+                                        crichardson5.beat_heartrate.userid = %s AND
+                                        cat='rest' AND
+                                        crichardson5.beat_heartrate.time_stamp BETWEEN %s AND %s
+                                GROUP BY crichardson5.beat_heartrate.userid
+                                ),
+                                -- avg HR values per day in the given range
+                                ( SELECT ROUND(AVG(hrvalue)) as avghr_d,USERID, DAY
+                                    FROM( SELECT crichardson5.beat_heartrate.USERID USERID,crichardson5.beat_heartrate.HRVALUE HRVALUE,SUBSTR(TSTART, 1, 10) AS DAY
+                                        FROM crichardson5.beat_heartrate, crichardson5.beat_event
+                                        WHERE crichardson5.beat_event.tstart BETWEEN %s AND %s AND
+                                                crichardson5.beat_heartrate.time_stamp BETWEEN crichardson5.beat_event.TSTART AND crichardson5.beat_event.TEND
+                                                AND cat='rest' 
+                                                AND crichardson5.beat_heartrate.userid = %s) new_dates
+                                        GROUP BY USERID, DAY ORDER BY DAY ASC)
+                        WHERE id = %s"""
+                
+                #cursor.execute(query, (userid, day_start, day_end, day_start, day_end, userid))
+                cursor.execute(query, (userid, day_start, day_end, day_start, day_end, userid, userid,))
+                print("sql done")
+                df = pd.DataFrame(cursor, columns=['recovery_score', 'DAY'])
+                # print(df)
+
+                # Graph 
+                graph =[]
+                graph.append(
+                    go.Scatter(
+                        x=df['DAY'],
+                        y=df['recovery_score'],
+                        name='Recovery Score Progression'
+                    )
+                )
+                layout = {
+                    'title': 'Recovery Score Progression',
+                    'xaxis_title': 'Time',
+                    'yaxis_title': 'Recovery Score',
+                    'height': 600,
+                    'width': 1000,
+                }
+                plot_div = plot({'data': graph, 'layout': layout}, 
+                                output_type='div')           
+                return render(request,'trend5.html',{'plot_div': plot_div,'form':form})
     else:
         form = form5()
     return render(request, 'trend5.html', {'form': form})

@@ -1,12 +1,18 @@
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>  
+
 {% extends 'base.html' %}
 {% block content %}
-<h1> Trend 5</h1>
-<form method="POST">
-    {% csrf_token %}
-    {{ form }}
-    <button type="submit" class="btn btn-outline-dark ml-4">Submit</button>
-  </form>
+<div class = "container">
   <div class="row">
-    <img class="img-fluid" src="data:image/png;base64,{{ data5 }}" alt="trend 5" >
+    {{ plot_div | safe}}
   </div>
+  <h1> Trend 5</h1>
+  <form method="POST">
+      {% csrf_token %}
+      {{ form }}
+      <button type="submit" class="btn btn-outline-dark ml-4">Submit</button>
+  </form>
+</div>
+
+
 {% endblock %}
