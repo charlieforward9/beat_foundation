@@ -11,7 +11,7 @@ WHERE crichardson5.beat_event.USERID = :uuid AND
         crichardson5.beat_event.CAT = :category
 
 
---Q2 TODO format for remote access
+--Q2 
 SELECT ce.tstart STIME, round(avg(hr.hrvalue)) AVGHR, max(hr.hrvalue) MAXHR ,min(hr.hrvalue) MINHR
 FROM (
     SELECT ROW_NUMBER() OVER (ORDER BY tstart) i1, tstart, cat, userid, tend
