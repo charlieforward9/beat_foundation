@@ -6,9 +6,9 @@ ON (
     crichardson5.beat_event.USERID = crichardson5.beat_heartrate.USERID AND
     crichardson5.beat_heartrate.TIME_STAMP BETWEEN crichardson5.beat_event.TSTART AND crichardson5.beat_event.TEND
     )
-WHERE crichardson5.beat_event.USERID = '0.8302870117189518' AND
-      crichardson5.beat_event.TSTART BETWEEN  '2021-06-1 00:00:00' AND '2021-06-5 23:59:59' AND
-        crichardson5.beat_event.CAT = 'work';
+WHERE crichardson5.beat_event.USERID = :uuid AND
+    crichardson5.beat_event.TSTART BETWEEN :starttime AND :endtime AND
+        crichardson5.beat_event.CAT = :category
 
 
 --Q2 TODO format for remote access
@@ -38,27 +38,26 @@ ORDER BY ce.tstart
 SELECT TO_TIMESTAMP(TSTART, 'YYYY-MM-DD HH24:MI:SS') AS start_time, TO_TIMESTAMP(TEND, 'YYYY-MM-DD HH24:MI:SS') AS end_time, MAX(HRVALUE), TO_TIMESTAMP(MAX(TEND), 'YYYY-MM-DD HH24:MI:SS') - TO_TIMESTAMP(MIN(TSTART), 'YYYY-MM-DD HH24:MI:SS') AS Duration 
 FROM crichardson5.beat_heartrate , crichardson5.beat_event
 WHERE crichardson5.beat_event.USERID = crichardson5.beat_heartrate.USERID AND
-    crichardson5.beat_event.USERID = '0.26777655249889387' AND
+    crichardson5.beat_event.USERID = :uuid AND
     crichardson5.beat_event.CAT = 'fitness' AND
-    crichardson5.beat_event.TSTART BETWEEN '2020-06-21 00:00:00' AND '2020-06-29 23:59:59' AND
+    crichardson5.beat_event.TSTART BETWEEN :timestart AND :timeend AND
     crichardson5.beat_heartrate.TIME_STAMP BETWEEN crichardson5.beat_event.TSTART AND crichardson5.beat_event.TEND
 GROUP BY crichardson5.beat_event.tstart, crichardson5.beat_event.tend
 ORDER BY crichardson5.beat_event.tstart ASC
 
 
 --Q4
-SELECT TEND, ROUND(AVG(HRVALUE)), MIN(HRVALUE), MAX(HRVALUE), TO_TIMESTAMP(MAX(TEND), 'YYYY-MM-DD HH24:MI:SS') - TO_TIMESTAMP(MIN(TSTART), 'YYYY-MM-DD HH24:MI:SS') AS Duration
+SELECT TEND, ROUND(AVG(HRVALUE)) AS average, MIN(HRVALUE) AS min, MAX(HRVALUE) AS max, TO_TIMESTAMP(MAX(TEND), 'YYYY-MM-DD HH24:MI:SS') - TO_TIMESTAMP(MIN(TSTART), 'YYYY-MM-DD HH24:MI:SS') AS Duration
 FROM (
-SELECT *
-FROM CRICHARDSON5.beat_event E, CRICHARDSON5.beat_heartrate H
-WHERE E.CAT = 'rest' AND
-      E.USERID = H.USERID AND
-      E.USERID = '0.26777655249889387' AND
-      H.time_stamp BETWEEN E.TSTART AND E.TEND AND
-      E.TEND BETWEEN '2020-06-21 00:00:00' AND '2020-06-30 23:59:59'
-
-)
-GROUP BY TEND;
+    SELECT *
+    FROM CRICHARDSON5.beat_event E, CRICHARDSON5.beat_heartrate H
+    WHERE E.TEND BETWEEN :timestart AND :timeend AND
+    E.CAT = 'rest' AND
+    E.USERID = H.USERID AND
+    E.USERID = :uuid AND
+    H.time_stamp BETWEEN E.TSTART AND E.TEND
+    )
+GROUP BY TEND
 
 --Q5
 SELECT 
@@ -71,18 +70,18 @@ FROM
             crichardson5.beat_heartrate.userid AS id
         FROM crichardson5.beat_heartrate, crichardson5.beat_event
         WHERE
-            crichardson5.beat_heartrate.userid = %s AND
+            crichardson5.beat_heartrate.userid = :uuid AND
             cat='rest' AND
-            crichardson5.beat_heartrate.time_stamp BETWEEN %s AND %s
+            crichardson5.beat_heartrate.time_stamp BETWEEN :timestart AND :timeend
     GROUP BY crichardson5.beat_heartrate.userid
     ),
     -- avg HR values per day in the given range
     ( SELECT ROUND(AVG(hrvalue)) as avghr_d,USERID, DAY
         FROM( SELECT crichardson5.beat_heartrate.USERID USERID,crichardson5.beat_heartrate.HRVALUE HRVALUE,SUBSTR(TSTART, 1, 10) AS DAY
             FROM crichardson5.beat_heartrate, crichardson5.beat_event
-            WHERE crichardson5.beat_event.tstart BETWEEN %s AND %s AND
+            WHERE crichardson5.beat_event.tstart BETWEEN :timestart AND :timeend AND
                     crichardson5.beat_heartrate.time_stamp BETWEEN crichardson5.beat_event.TSTART AND crichardson5.beat_event.TEND
                     AND cat='rest' 
-                    AND crichardson5.beat_heartrate.userid = %s) new_dates
+                    AND crichardson5.beat_heartrate.userid = :uuid) new_dates
             GROUP BY USERID, DAY ORDER BY DAY ASC)
 WHERE id = %s
