@@ -12,7 +12,7 @@
 #### Collecting valid user input
 * Calendar (.ics) parsed using [this tool](http://www.markwk.com/data-analysis-for-apple-health.html)
   * Only events preceded by a category keyword will be counted (case insensitive):
-   * _Work_, _Rest_, _Fitness_, _Eating_, _Social_ or _Other_
+   * **_Work_, _Rest_, _Fitness_, _Eating_, _Social_ or _Other_**
 * Heart Rate (.xml) 
 
 Duplicate rows are automatically removed by the parser.
