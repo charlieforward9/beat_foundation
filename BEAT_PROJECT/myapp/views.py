@@ -1,20 +1,17 @@
-from xml.etree.ElementInclude import include
 from django.shortcuts import render, redirect
 from django.db import connection
 from django.http import HttpResponse
 import pandas as pd
-import json
 import matplotlib.pyplot as plt
 from plotly.offline import plot
 import plotly.graph_objects as go
 from .forms import form1, form2, form3, form4, form5
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 # Login imports
-from .forms import LoginForm, SignUpForm
+from .forms import SignUpForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.forms import UserCreationForm
 
 from .forms import form1, form2, form3, form4, form5
 
@@ -64,19 +61,19 @@ def userLogout(request):
     logout(request)
     return redirect("home")
 
-# developing the trends
+# Trends 1-5 as individual functions below
 @login_required
 def trend1(request):
     if request.method == 'POST':
         form = form1(request.POST)
         if form.is_valid():
-            activity = form.cleaned_data['activity']
+            activity = form.cleaned_data['activity'].lower()
             start = form.cleaned_data['start']
             end = form.cleaned_data['end']
             avg = form.cleaned_data['avg']
             high = form.cleaned_data['high']
             low = form.cleaned_data['low']
-            print("================ TREND 1 =================")
+            print("================ TREND 1 =================") #Display trend stats in terminal (no particular reason, just to show)
             print("User:", request.user.get_username())
             print("Activity:", activity)
             print("Start:", start) 
@@ -85,24 +82,22 @@ def trend1(request):
             print("High:", high) 
             print("Low:", low) 
             print("========================================")
-            # set the username
-            if request.user.get_username() == 'Charbo':
+            if request.user.get_username() == 'Charbo': # set the username variable based on who is logged in
                 userid = '0.8302870117189518'
             else: # Cam
                 userid = '0.26777655249889387'
 
+            
             # Query
-            activity = activity.lower()
             # Graph 
             date_time = start.strftime("%Y-%m-%d %H:%M:%S")
             date_time = date_time[0:10]
-            print(date_time)
             all_days = []
             avg_days = []
             min_days = []
             max_days = []
-            day_start_test = date_time + ' 00:00:00'
-            day_end_test = date_time + ' 23:59:59'
+            day_start = date_time + ' 00:00:00'
+            day_end = date_time + ' 23:59:59'
 
             real_query = """SELECT ROUND(AVG(CRICHARDSON5.beat_heartrate.HRVALUE)) AS AVG_HR, MIN(CRICHARDSON5.beat_heartrate.HRVALUE) as MIN_HR, MAX(CRICHARDSON5.beat_heartrate.HRVALUE) AS MAX_HR
                             FROM CRICHARDSON5.beat_event JOIN CRICHARDSON5.beat_heartrate
@@ -114,22 +109,14 @@ def trend1(request):
                                 crichardson5.beat_event.TSTART BETWEEN %s AND %s AND
                                     crichardson5.beat_event.CAT = %s """
 
-            cursor.execute(real_query, (userid, day_start_test, day_end_test, activity,))
-            # cursor.execute(test_query_1,(test_userid, test_day_start, test_day_end,))
+            cursor.execute(real_query, (userid, day_start, day_end, activity,))
             day_df = pd.DataFrame(cursor, columns=['AVG_HR','MIN_HR', 'MAX_HR'])
-            # day_df = day_df.loc[day_df['CAT'] == activity]
-            print(day_df)
-            if not day_df['AVG_HR'][0] == None:
-                print(day_df)
-                # print(day_df.loc[day_df['CAT'] == activity])
-                # print(day_df['AVG_HR'][0])
-                all_days.append(date_time)
-                # test = day_df['AVG_HR']
-                # print('testing: ', day_df['AVG_HR'][0])
-                avg_days.append(day_df['AVG_HR'][0])
-                min_days.append(day_df['MIN_HR'][0])
-                max_days.append(day_df['MAX_HR'][0])
-
+            if not day_df.empty: 
+                if not day_df['AVG_HR'][0] == None:
+                    all_days.append(date_time)
+                    avg_days.append(day_df['AVG_HR'][0])
+                    min_days.append(day_df['MIN_HR'][0])
+                    max_days.append(day_df['MAX_HR'][0])
 
             while start != end:
                 if start > end:
@@ -139,20 +126,15 @@ def trend1(request):
                 date_time = date_time[0:10]
                 day_start = date_time + ' 00:00:00'
                 day_end = date_time + ' 23:59:59'
-                # print(day_start)
-                # print(day_end)
                 cursor.execute(real_query, (userid, day_start, day_end, activity,))
                 day_df = pd.DataFrame(cursor, columns=['AVG_HR','MIN_HR', 'MAX_HR'])
+                if not day_df.empty:
+                    if not day_df['AVG_HR'][0] == None:
+                        all_days.append(date_time)
+                        avg_days.append(day_df['AVG_HR'][0])
+                        min_days.append(day_df['MIN_HR'][0])
+                        max_days.append(day_df['MAX_HR'][0])
 
-                if not day_df['AVG_HR'][0] == None:
-                    # print(day_df)
-                    # day_df = day_df.loc[day_df['CAT'] == activity]
-                    all_days.append(date_time)
-                    avg_days.append(day_df['AVG_HR'][0])
-                    min_days.append(day_df['MIN_HR'][0])
-                    max_days.append(day_df['MAX_HR'][0])
-
-            
             graphs = []
             # add the bar graph
             if avg:
@@ -187,10 +169,8 @@ def trend1(request):
                 'width': 1000,
             }
 
-            
-            plot_div = plot({'data': graphs, 'layout': layout}, 
-                            output_type='div')
-            
+            #Display graph and return
+            plot_div = plot({'data': graphs, 'layout': layout}, output_type='div')
             return render(request,'trend1.html',context = {'plot_div': plot_div, 'form':form})
     else:
         form = form1()
@@ -202,37 +182,133 @@ def trend2(request):
     if request.method == 'POST':
         form = form2(request.POST)
         if form.is_valid():
-            activity = form.cleaned_data['activity']
-            start = getDay(form.cleaned_data['start'])
-            end = getDay(form.cleaned_data['end'])
+            activity1 = form.cleaned_data['activity1'].lower()
+            activity2 = form.cleaned_data['activity2'].lower()
+            start = form.cleaned_data['start']
+            end = form.cleaned_data['end']
             avg = form.cleaned_data['avg']
             high = form.cleaned_data['high']
             low = form.cleaned_data['low']
-            print("================ TREND 3 =================")
+            print("================ TREND 2 =================") #Display trend stats in terminal (no particular reason, just to show)
             print("User:", request.user.get_username())
-            print("Activity:", activity)
+            print("Activity 1:", activity1)
+            print("Activity 2:", activity2)
             print("Start:", start) 
             print("End:", end) 
             print("Avg:", avg) 
             print("High:", high) 
             print("Low:", low) 
             print("========================================")
-
-            # Query
             
-            # Graph 
-            plt.plot(range(30))
-            fig = plt.gcf()
-            #convert graph into dtring buffer and then we convert 64 bit code into image
-            buf = io.BytesIO()
-            fig.savefig(buf,format='png')
-            buf.seek(0)
-            string = base64.b64encode(buf.read())
-            uri =  urllib.parse.quote(string)
-            return render(request,'trend2.html',{'data2':uri, 'form':form})
+            if request.user.get_username() == 'Charbo': # set the username variable based on who is logged in
+                userid = '0.8302870117189518'
+            elif request.user.get_username() == 'Cam': # Cam
+                userid = '0.26777655249889387'
+            else:
+                userid = '0.8302870117189518' #Charbo
+            
+            all_days = avg_days = min_days = max_days = []
+
+            date_time = start.strftime("%Y-%m-%d %H:%M:%S")
+            date_time = date_time[0:10]
+            day_start = date_time + ' 00:00:00'
+            day_end = date_time + ' 23:59:59'
+
+            data = dict(uuid=userid, catone=activity1, cattwo=activity2, daystart=day_start, dayend=day_end)
+            real_query = """SELECT ce.tstart STIME, round(avg(hr.hrvalue)) AVGHR, max(hr.hrvalue) MAXHR ,min(hr.hrvalue) MINHR
+                            FROM (
+                                SELECT ROW_NUMBER() OVER (ORDER BY tstart) i1, tstart, cat, userid, tend
+                                FROM crichardson5.beat_event 
+                                WHERE cat = :catone or cat = :cattwo ) ce
+                                INNER JOIN 
+                                (SELECT ROW_NUMBER() OVER (ORDER BY tstart) i2, tstart, cat, userid 
+                                FROM crichardson5.beat_event 
+                                WHERE cat=:catone or cat = :cattwo ) pe 
+                                ON ce.i1 = pe.i2 + 1,
+                                crichardson5.beat_heartrate hr
+                            WHERE
+                                ce.userid = pe.userid AND
+                                ce.userid = hr.userid AND
+                                ce.userid = :uuid AND
+                                pe.cat = :catone AND 
+                                ce.cat = :cattwo AND 
+                                ce.tstart BETWEEN :daystart AND :dayend AND
+                                hr.time_stamp BETWEEN ce.tstart AND ce.tend      
+                            GROUP BY ce.tstart 
+                            ORDER BY ce.tstart
+                        """
+ 
+            cursor.execute(real_query, data)
+
+            day_df = pd.DataFrame(cursor, columns=['STIME', 'AVGHR', 'MAXHR', 'MINHR'])
+            if not day_df.empty: 
+                if not day_df['AVGHR'][0] == None:
+                    all_days.append(date_time)
+                    avg_days.append(day_df['AVGHR'][0])
+                    min_days.append(day_df['MINHR'][0])
+                    max_days.append(day_df['MAXHR'][0])
+
+            while start != end:
+                if start > end:
+                    break
+                start = start + timedelta(days=1)
+                date_time = start.strftime("%Y-%m-%d %H:%M:%S")
+                date_time = date_time[0:10]
+                day_start = date_time + ' 00:00:00'
+                day_end = date_time + ' 23:59:59'
+                cursor.execute(real_query, data)
+                data = dict(uuid=userid, catone=activity1, cattwo=activity2, daystart=day_start, dayend=day_end)
+                day_df = pd.DataFrame(cursor, columns=['STIME', 'AVGHR','MAXHR', 'MINHR'])
+                print(day_df)
+                if not day_df.empty:
+                    if not day_df['AVGHR'][0] == None:
+                        all_days.append(date_time)
+                        avg_days.append(day_df['AVGHR'][0])
+                        min_days.append(day_df['MINHR'][0])
+                        max_days.append(day_df['MAXHR'][0])
+
+            graphs = []
+            # add the bar graph
+            if avg:
+                graphs.append(
+                    go.Scatter(
+                        x=all_days,
+                        y=avg_days,
+                        name='Mean Heart Rate',
+                    )
+                )
+            if low:
+                graphs.append(
+                    go.Scatter(
+                        x=all_days,
+                        y=min_days,
+                        name='Min Heart Rate',
+                    )
+                )
+            if high:
+                graphs.append(
+                    go.Scatter(
+                        x=all_days,
+                        y=max_days,
+                        name='Max Heart Rate',
+                    )
+                )
+            layout = {
+                'title': 'Aggregate Trends',
+                'xaxis_title': 'Max, Min, Avg',
+                'yaxis_title': 'Heart Rate',
+                'height': 600,
+                'width': 1000,
+            }
+
+            #Display graph and return
+            plot_div = plot({'data': graphs, 'layout': layout}, output_type='div')
+            return render(request,'trend2.html',context = {'plot_div': plot_div, 'form':form})
+        else:
+            print("Form is not valid")
     else:
         form = form2()
-    return render(request, 'trend2.html', {'form': form})
+    return render(request, 'trend2.html', {'form': form})   
 
 @login_required
 def trend3(request):
