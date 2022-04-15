@@ -373,25 +373,18 @@ def trend5(request):
                             GROUP BY crichardson5.beat_heartrate.userid
                             ),
                             -- avg HR values per day in the given range
-                            (SELECT 
-                                    ROUND(AVG(hrvalue)) as avghr_d,
-                                    USERID, 
-                                    DAY
-                                FROM(
-                                    SELECT 
-                                        crichardson5.beat_heartrate.USERID USERID,
-                                        crichardson5.beat_heartrate.HRVALUE HRVALUE,
-                                        SUBSTR(TSTART, 1, 10) AS DAY
+                            ( SELECT ROUND(AVG(hrvalue)) as avghr_d,USERID, DAY
+                                FROM( SELECT crichardson5.beat_heartrate.USERID USERID,crichardson5.beat_heartrate.HRVALUE HRVALUE,SUBSTR(TSTART, 1, 10) AS DAY
                                     FROM crichardson5.beat_heartrate, crichardson5.beat_event
-                                        WHERE crichardson5.beat_event.tstart 
-                                        BETWEEN %s AND %s
-                                        AND cat='rest' 
-                                        AND crichardson5.beat_heartrate.userid = %s)new_dates
-                            GROUP BY USERID, DAY ORDER BY DAY ASC)
-                    WHERE id = %s """
+                                    WHERE crichardson5.beat_event.tstart BETWEEN %s AND %s AND
+                                            crichardson5.beat_heartrate.time_stamp BETWEEN crichardson5.beat_event.TSTART AND crichardson5.beat_event.TEND
+                                            AND cat='rest' 
+                                            AND crichardson5.beat_heartrate.userid = %s) new_dates
+                                    GROUP BY USERID, DAY ORDER BY DAY ASC)
+                    WHERE id = %s"""
             
             #cursor.execute(query, (userid, day_start, day_end, day_start, day_end, userid))
-            cursor.execute(query, ('0.8302870117189518', '2021-02-01 18:30:00', '2021-02-11 23:59:59', '2021-02-01 18:30:00', '2021-02-11 23:59:59', '0.8302870117189518'))
+            cursor.execute(query, (userid, day_start, day_end, day_start, day_end, userid, userid,))
             print("sql done")
             df = pd.DataFrame(cursor, columns=['recovery_score', 'DAY'])
             print(df)
