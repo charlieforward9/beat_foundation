@@ -18,8 +18,8 @@ from django.contrib.auth.forms import UserCreationForm
 
 from .forms import form1, form2, form3, form4, form5
 
-START_TIME = "00:00:00"
-END_TIME = "23:59:59"
+START_TIME = " 00:00:00"
+END_TIME = " 23:59:59"
 
 cursor = connection.cursor()
 
@@ -203,8 +203,8 @@ def trend2(request):
         form = form2(request.POST)
         if form.is_valid():
             activity = form.cleaned_data['activity']
-            start = getDay(form.cleaned_data['start'])
-            end = getDay(form.cleaned_data['end'])
+            start = (form.cleaned_data['start'])
+            end = (form.cleaned_data['end'])
             avg = form.cleaned_data['avg']
             high = form.cleaned_data['high']
             low = form.cleaned_data['low']
@@ -219,17 +219,16 @@ def trend2(request):
             print("========================================")
 
             # Query
-            
+          
+
             # Graph 
-            plt.plot(range(30))
-            fig = plt.gcf()
-            #convert graph into dtring buffer and then we convert 64 bit code into image
-            buf = io.BytesIO()
-            fig.savefig(buf,format='png')
-            buf.seek(0)
-            string = base64.b64encode(buf.read())
-            uri =  urllib.parse.quote(string)
-            return render(request,'trend2.html',{'data2':uri, 'form':form})
+            graph = []
+            layout = {
+
+            }
+            plot_div = plot({'data': graph, 'layout': layout}, 
+                            output_type='div')
+            return render(request,'trend2.html',{'plot_div': plot_div, 'form':form})
     else:
         form = form2()
     return render(request, 'trend2.html', {'form': form})
@@ -240,8 +239,8 @@ def trend3(request):
         form = form3(request.POST)
         if form.is_valid():
             activity = form.cleaned_data['activity']
-            start = getDay(form.cleaned_data['start'])
-            end = getDay(form.cleaned_data['end'])
+            start = (form.cleaned_data['start'])
+            end = (form.cleaned_data['end'])
             avg = form.cleaned_data['avg']
             high = form.cleaned_data['high']
             low = form.cleaned_data['low']
@@ -258,15 +257,13 @@ def trend3(request):
             # Query
             
             # Graph 
-            plt.plot(range(30))
-            fig = plt.gcf()
-            #convert graph into dtring buffer and then we convert 64 bit code into image
-            buf = io.BytesIO()
-            fig.savefig(buf,format='png')
-            buf.seek(0)
-            string = base64.b64encode(buf.read())
-            uri =  urllib.parse.quote(string)
-            return render(request,'trend3.html',{'data3':uri, 'form':form})
+            graph = []
+            layout = {
+
+            }
+            plot_div = plot({'data': graph, 'layout': layout}, 
+                            output_type='div')
+            return render(request,'trend3.html',{'plot_div': plot_div, 'form':form})
     else:
         form = form3()
     return render(request, 'trend3.html', {'form': form})
@@ -276,8 +273,8 @@ def trend4(request):
     if request.method == 'POST':
         form = form4(request.POST)
         if form.is_valid():
-            start = getDay(form.cleaned_data['start'])
-            end = getDay(form.cleaned_data['end'])
+            start = (form.cleaned_data['start'])
+            end = (form.cleaned_data['end'])
             avg = form.cleaned_data['avg']
             high = form.cleaned_data['high']
             low = form.cleaned_data['low']
@@ -293,15 +290,13 @@ def trend4(request):
             # Query
             
             # Graph 
-            plt.plot(range(40))
-            fig = plt.gcf()
-            #convert graph into dtring buffer and then we convert 64 bit code into image
-            buf = io.BytesIO()
-            fig.savefig(buf,format='png')
-            buf.seek(0)
-            string = base64.b64encode(buf.read())
-            uri =  urllib.parse.quote(string)
-            return render(request,'trend4.html',{'data4':uri, 'form':form})
+            graph = []
+            layout = {
+
+            }
+            plot_div = plot({'data': graph, 'layout': layout}, 
+                            output_type='div')
+            return render(request,'trend4.html',{'plot_div': plot_div, 'form':form})
     else:
         form = form4()
     return render(request, 'trend4.html', {'form': form})
@@ -311,26 +306,115 @@ def trend5(request):
     if request.method == 'POST':
         form = form5(request.POST)
         if form.is_valid():
-            start = getDay(form.cleaned_data['start'])
-            end = getDay(form.cleaned_data['end'])
+            start = (form.cleaned_data['start'])
+            end = (form.cleaned_data['end'])
             print("================ TREND 5 =================")
             print("User:", request.user.get_username())
             print("Start:", start) 
             print("End:", end) 
             print("========================================")
 
-            # Query
-            
+            # set the username
+            if request.user.get_username() == 'Charbo':
+                userid = '0.8302870117189518'
+            else: # Cam
+                userid = '0.26777655249889387'
+
             # Graph 
-            plt.plot(range(50))
-            fig = plt.gcf()
-            #convert graph into dtring buffer and then we convert 64 bit code into image
-            buf = io.BytesIO()
-            fig.savefig(buf,format='png')
-            buf.seek(0)
-            string = base64.b64encode(buf.read())
-            uri =  urllib.parse.quote(string)
-            return render(request,'trend5.html',{'data5':uri, 'form':form})
+            s_date_time = start.strftime("%Y-%m-%d %H:%M:%S")
+            s_date_time = s_date_time[0:10]
+            e_date_time = end.strftime("%Y-%m-%d %H:%M:%S")
+            e_date_time = e_date_time[0:10]
+            day_start = s_date_time + START_TIME
+            day_end = e_date_time + END_TIME
+            print(day_start,day_end)
+
+            # Query
+            # query = """SELECT 
+            #                 ROUND((avghr_d/avghr_r) * 100) AS recovery_score,
+            #                 DAY 
+            #                 FROM
+            #                     -- resting HR avg for all days in the given range
+            #                     (SELECT 
+            #                         ROUND(AVG(hrvalue)) AS avghr_r, 
+            #                         crichardson5.beat_heartrate.userid AS id
+            #                     FROM crichardson5.beat_heartrate, crichardson5.beat_event
+            #                     WHERE
+            #                         crichardson5.beat_heartrate.userid = %s AND
+            #                         cat='rest' AND
+            #                         crichardson5.beat_heartrate.time_stamp BETWEEN %s AND %s
+            #                     GROUP BY crichardson5.beat_heartrate.userid
+            #                     ),
+            #                     -- avg HR values per day in the given range
+            #                     (SELECT ROUND(AVG(hrvalue)) as avghr_d, USERID, DAY FROM(
+            #                         SELECT 
+            #                             crichardson5.beat_heartrate.USERID USERID,
+            #                             crichardson5.beat_heartrate.HRVALUE HRVALUE,
+            #                             SUBSTR(TSTART, 1, 10) AS DAY
+            #                         FROM crichardson5.beat_heartrate, crichardson5.beat_event
+            #                             WHERE crichardson5.beat_event.tstart 
+            #                             BETWEEN %s AND %s
+            #                             AND cat='rest')
+            #                     GROUP BY USERID, DAY)
+            #             WHERE id = %s """
+            query ="""SELECT 
+                        ROUND((avghr_d/avghr_r) * 100) AS recovery_score,
+                        DAY 
+                        FROM
+                            -- resting HR avg for all days in the given range
+                            (SELECT 
+                                    ROUND(AVG(hrvalue)) AS avghr_r, 
+                                    crichardson5.beat_heartrate.userid AS id
+                                FROM crichardson5.beat_heartrate, crichardson5.beat_event
+                                WHERE
+                                    crichardson5.beat_heartrate.userid = %s AND
+                                    cat='rest' AND
+                                    crichardson5.beat_heartrate.time_stamp BETWEEN %s AND %s
+                            GROUP BY crichardson5.beat_heartrate.userid
+                            ),
+                            -- avg HR values per day in the given range
+                            (SELECT 
+                                    ROUND(AVG(hrvalue)) as avghr_d,
+                                    USERID, 
+                                    DAY
+                                FROM(
+                                    SELECT 
+                                        crichardson5.beat_heartrate.USERID USERID,
+                                        crichardson5.beat_heartrate.HRVALUE HRVALUE,
+                                        SUBSTR(TSTART, 1, 10) AS DAY
+                                    FROM crichardson5.beat_heartrate, crichardson5.beat_event
+                                        WHERE crichardson5.beat_event.tstart 
+                                        BETWEEN %s AND %s
+                                        AND cat='rest' 
+                                        AND crichardson5.beat_heartrate.userid = %s)new_dates
+                            GROUP BY USERID, DAY ORDER BY DAY ASC)
+                    WHERE id = %s """
+            
+            #cursor.execute(query, (userid, day_start, day_end, day_start, day_end, userid))
+            cursor.execute(query, ('0.8302870117189518', '2021-02-01 18:30:00', '2021-02-11 23:59:59', '2021-02-01 18:30:00', '2021-02-11 23:59:59', '0.8302870117189518'))
+            print("sql done")
+            df = pd.DataFrame(cursor, columns=['recovery_score', 'DAY'])
+            print(df)
+
+            # Graph 
+            graph =[]
+            graph.append(
+                go.Scatter(
+                    x=df['DAY'],
+                    y=df['recovery_score'],
+                    name='Recovery Score Progression'
+                )
+            )
+            layout = {
+                'title': 'Recovery Score Progression',
+                'xaxis_title': 'Time',
+                'yaxis_title': 'Recovery Score',
+                'height': 600,
+                'width': 1000,
+            }
+            plot_div = plot({'data': graph, 'layout': layout}, 
+                            output_type='div')           
+            return render(request,'trend5.html',{'plot_div': plot_div,'form':form})
     else:
         form = form5()
     return render(request, 'trend5.html', {'form': form})
