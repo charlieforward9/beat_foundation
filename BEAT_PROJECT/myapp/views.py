@@ -245,7 +245,7 @@ def trend2(request):
             avg_days = []
             min_days = []
             max_days = []
-            
+
             if not day_df.empty: 
                 if not day_df['AVGHR'][0] == None:
                     all_days.append(date_time)
@@ -360,45 +360,7 @@ def trend3(request):
                 # cursor.execute(test_query_1,(test_userid, test_day_start, test_day_end,))
                 day_df = pd.DataFrame(cursor, columns=['START_TIME','END_TIME', 'MAX_HR', 'DURATION'])
                 print(day_df)
-                # day_df = day_df.loc[day_df['CAT'] == activity]
-                # if not day_df['AVG_HR'][0] == None:
-                #     print(day_df)
-                #     # print(day_df.loc[day_df['CAT'] == activity])
-                #     # print(day_df['AVG_HR'][0])
-                #     all_days.append(date_time)
-                #     # test = day_df['AVG_HR']
-                #     # print('testing: ', day_df['AVG_HR'][0])
-                #     avg_days.append(day_df['AVG_HR'][0])
-                #     min_days.append(day_df['MIN_HR'][0])
-                #     max_days.append(day_df['MAX_HR'][0])
-                
-                # need to post-process for overlaps
-                # for i, row in day_df.iterrows():
-                #     if (len(day_df) == i):
-                #         print("equal")
-                #         break
-                #     print("Length: ",len(day_df))
-                #     print("Current Index: ",i)
 
-                #     if day_df.iloc[i]['END_TIME'] > day_df.iloc[i+1]['START_TIME'] and day_df.iloc[i]['END_TIME'] < day_df.iloc[i+1]['END_TIME']:
-                #         #combine the cells
-                #         print("Merging")
-                #         hr = max(day_df.iloc[i]['MAX_HR'], day_df.iloc[i+1]['MAX_HR'])
-                #         dur = day_df.iloc[i+1]['END_TIME'] - day_df.iloc[i]['START_TIME']
-                #         dict = {
-                #             'START_TIME': day_df.iloc[i]['START_TIME'],
-                #             'END_TIME': day_df.iloc[i+1]['END_TIME'],
-                #             'MAX_HR': hr,
-                #             'DURATION': dur,
-                #         }
-                #         df2 = pd.DataFrame(dict, index=[0])
-                #         # print("new row: ", df2)
-                #         # drop the old rows
-                #         day_df.drop([0, 1], inplace=True)
-                #         # add the new rows
-                #         day_df = pd.concat([day_df, df2], ignore_index=True)
-                #         # sort the df by the START_TIME
-                #         day_df.sort_values(by=['START_TIME'], inplayce=True)
                 day_df = day_df.groupby("DURATION").mean().reset_index()
                 # print(day_df)
 
