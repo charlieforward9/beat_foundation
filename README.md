@@ -18,3 +18,6 @@
 * Heart Rate (.xml) 
 
 Duplicate rows are automatically removed by the parser.
+
+###
+Cameron Keene, Thomas Pena-Reina, Dillan Maraj, Charlie Richardson
