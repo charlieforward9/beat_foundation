@@ -2,11 +2,11 @@
 
 {% extends 'base.html' %}
 {% block content %}
-<div class="container">
-  <h1> Trend 2</h1>
+<div class="container mb-4">
   <div class="row">
     {{ plot_div | safe}}
   </div>
+  <h2> Trend 2</h2>
   <form method="POST">
     {% csrf_token %}
     {{ form }}
