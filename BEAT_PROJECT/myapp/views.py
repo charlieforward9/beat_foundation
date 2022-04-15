@@ -207,8 +207,6 @@ def trend2(request):
             else:
                 userid = '0.8302870117189518' #Charbo
             
-            all_days = avg_days = min_days = max_days = []
-
             date_time = start.strftime("%Y-%m-%d %H:%M:%S")
             date_time = date_time[0:10]
             day_start = date_time + ' 00:00:00'
@@ -240,7 +238,14 @@ def trend2(request):
  
             cursor.execute(real_query, data)
 
+
             day_df = pd.DataFrame(cursor, columns=['STIME', 'AVGHR', 'MAXHR', 'MINHR'])
+
+            all_days = []
+            avg_days = []
+            min_days = []
+            max_days = []
+            
             if not day_df.empty: 
                 if not day_df['AVGHR'][0] == None:
                     all_days.append(date_time)
