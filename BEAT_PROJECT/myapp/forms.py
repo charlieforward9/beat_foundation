@@ -95,12 +95,12 @@ class form2(forms.Form):
     low = forms.BooleanField(required=False)
 
 class form3(forms.Form):
-    activity = forms.CharField()
+    # activity = forms.CharField()
     start = forms.DateTimeField(widget=DatePickerInput)
     end = forms.DateTimeField(widget=DatePickerInput)
-    avg = forms.BooleanField(required=False)
-    high = forms.BooleanField(required=False)
-    low = forms.BooleanField(required=False)
+    # avg = forms.BooleanField(required=False)
+    # high = forms.BooleanField(required=False)
+    # low = forms.BooleanField(required=False)
 
 class form4(forms.Form):
     start = forms.DateTimeField(widget=DatePickerInput)

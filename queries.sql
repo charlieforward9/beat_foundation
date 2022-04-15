@@ -87,10 +87,14 @@ GROUP BY TEND;
 
 
 --Q5
-SELECT ROUND((avghr_d/avghr_r) * 100) AS recovery_score, DAY 
+SELECT 
+ROUND(100 - (((avghr_d-avghr_r)/avghr_r)*100)) as recovery_score,
+DAY 
 FROM
     -- resting HR avg for all days in the given range
-    (SELECT ROUND(AVG(hrvalue)) AS avghr_r, crichardson5.beat_heartrate.userid AS id
+    (SELECT 
+            ROUND(AVG(hrvalue)) AS avghr_r, 
+            crichardson5.beat_heartrate.userid AS id
         FROM crichardson5.beat_heartrate, crichardson5.beat_event
         WHERE
             crichardson5.beat_heartrate.userid = %s AND
