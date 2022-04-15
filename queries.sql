@@ -12,52 +12,27 @@ WHERE crichardson5.beat_event.USERID = '0.8302870117189518' AND
 
 
 --Q2 TODO format for remote access
-
- SELECT ce.tstart STIME, round(avg(hr.hrvalue)) AVGHR, max(hr.hrvalue) MAXHR ,min(hr.hrvalue) MINHR
-FROM (--PSEUDO: sort by tstart and label the indexes of each row. For rows in table CE and PE, join CE[i] w PE[i+1]
+SELECT ce.tstart STIME, round(avg(hr.hrvalue)) AVGHR, max(hr.hrvalue) MAXHR ,min(hr.hrvalue) MINHR
+FROM (
     SELECT ROW_NUMBER() OVER (ORDER BY tstart) i1, tstart, cat, userid, tend
     FROM crichardson5.beat_event 
-    WHERE cat = 'rest' or cat = 'fitness' ) ce --Current Event = Activity 2
+    WHERE cat = :catone or cat = :cattwo ) ce
     INNER JOIN 
     (SELECT ROW_NUMBER() OVER (ORDER BY tstart) i2, tstart, cat, userid 
     FROM crichardson5.beat_event 
-    WHERE cat='rest' or cat = 'fitness' ) pe --Previous Event = Activity 1
+    WHERE cat=:catone or cat = :cattwo ) pe 
     ON ce.i1 = pe.i2 + 1,
     crichardson5.beat_heartrate hr
 WHERE
     ce.userid = pe.userid AND
     ce.userid = hr.userid AND
-    --ce.userid = :uuid AND
-    pe.cat = 'fitness' AND --Activity 1
-    ce.cat = 'rest' AND --Activity 2
-    ce.tstart BETWEEN '2021-02-11 00:00:00' AND '2022-02-11 23:59:59' AND
+    ce.userid = :uuid AND
+    pe.cat = :catone AND 
+    ce.cat = :cattwo AND 
+    ce.tstart BETWEEN :daystart AND :dayend AND
     hr.time_stamp BETWEEN ce.tstart AND ce.tend      
-GROUP BY ce.tstart --Get all relevant HR data for each rest session
-ORDER BY ce.tstart;
-
-
-"""SELECT ce.tstart STIME , round(avg(hr.hrvalue)) AVGHR , max(hr.hrvalue) MAXHR , min(hr.hrvalue) MINHR
-                            FROM (
-                                SELECT ROW_NUMBER() OVER (ORDER BY tstart) i1, tstart, cat, userid, tend
-                                FROM crichardson5.beat_event 
-                                WHERE cat = :cat1 or cat = :cat2) ce 
-                                INNER JOIN 
-                                (SELECT ROW_NUMBER() OVER (ORDER BY tstart) i2, tstart, cat, userid 
-                                FROM crichardson5.beat_event 
-                                WHERE cat = :cat1 or cat = :cat2) pe 
-                                ON ce.i1 = pe.i2 + 1,
-                                crichardson5.beat_heartrate hr
-                            WHERE 
-                                ce.userid = pe.userid AND
-                                ce.userid = hr.userid AND
-                                ce.userid = :uuid AND
-                                pe.cat = :cat1 AND 
-                                ce.cat = :cat2 AND
-                                ce.tstart BETWEEN :day_start AND :day_end AND
-                                hr.TIME_STAMP BETWEEN ce.tstart AND ce.tend      
-                            GROUP BY ce.tstart 
-                            ORDER BY ce.tstart
-                        """
+GROUP BY ce.tstart 
+ORDER BY ce.tstart
                         
 --Q3
 SELECT TO_TIMESTAMP(TSTART, 'YYYY-MM-DD HH24:MI:SS') AS start_time, TO_TIMESTAMP(TEND, 'YYYY-MM-DD HH24:MI:SS') AS end_time, MAX(HRVALUE), TO_TIMESTAMP(MAX(TEND), 'YYYY-MM-DD HH24:MI:SS') - TO_TIMESTAMP(MIN(TSTART), 'YYYY-MM-DD HH24:MI:SS') AS Duration 
@@ -84,7 +59,6 @@ WHERE E.CAT = 'rest' AND
 
 )
 GROUP BY TEND;
-
 
 --Q5
 SELECT 
