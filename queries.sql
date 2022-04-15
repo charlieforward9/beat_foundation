@@ -39,7 +39,6 @@ ORDER BY ce.tstart;
 SELECT TO_TIMESTAMP(TSTART, 'YYYY-MM-DD HH24:MI:SS') AS time, MAX(HRVALUE), TO_TIMESTAMP(MAX(TEND), 'YYYY-MM-DD HH24:MI:SS') - TO_TIMESTAMP(MIN(TSTART), 'YYYY-MM-DD HH24:MI:SS') AS Duration
 FROM crichardson5.beat_heartrate , crichardson5.beat_event
 WHERE crichardson5.beat_event.USERID = crichardson5.beat_heartrate.USERID AND
-    crichardson5.beat_event.USERID = crichardson5.beat_event.USERID AND 
     crichardson5.beat_event.CAT = 'rest' AND
     crichardson5.beat_event.TSTART BETWEEN '2020-06-21 00:00:00' AND '2020-06-29 23:59:59' AND
     crichardson5.beat_heartrate.TIME_STAMP BETWEEN crichardson5.beat_event.TSTART AND crichardson5.beat_event.TEND

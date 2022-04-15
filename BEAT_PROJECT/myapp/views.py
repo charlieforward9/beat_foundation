@@ -268,7 +268,6 @@ def trend3(request):
                 query3 = """ SELECT TO_TIMESTAMP(TSTART, 'YYYY-MM-DD HH24:MI:SS') AS start_time, TO_TIMESTAMP(TEND, 'YYYY-MM-DD HH24:MI:SS') AS end_time, MAX(HRVALUE), TO_TIMESTAMP(MAX(TEND), 'YYYY-MM-DD HH24:MI:SS') - TO_TIMESTAMP(MIN(TSTART), 'YYYY-MM-DD HH24:MI:SS') AS Duration 
                         FROM crichardson5.beat_heartrate , crichardson5.beat_event
                         WHERE crichardson5.beat_event.USERID = crichardson5.beat_heartrate.USERID AND
-                            crichardson5.beat_event.USERID = crichardson5.beat_event.USERID AND 
                             crichardson5.beat_event.USERID = %s AND
                             crichardson5.beat_event.CAT = 'fitness' AND
                             crichardson5.beat_event.TSTART BETWEEN %s AND %s AND
