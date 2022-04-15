@@ -87,21 +87,24 @@ GROUP BY TEND;
 
 
 --Q5
-SELECT ((oneday.AVG(HRvalue) / sevenday.AVG(HRvalue)) * 100)
+SELECT ROUND((avghr_d/avghr_r) * 100) AS recovery_score, DAY 
 FROM
-    (SELECT AVG(HRvalue) 
-    FROM beat_event e
-    WHERE cat='rest') restHR JOIN beat_heartrate ON 
-        
-        AND 
-
-
-
-SELECT *, AVG(HRvalue)
-FROM beat_event e JOIN beat_heartrate h
-ON h.time_stamp BETWEEN e.tstart AND e.tend 
-    AND e.userID=h.userID 
-    AND 
-
-
-cat='rest'
+    -- resting HR avg for all days in the given range
+    (SELECT ROUND(AVG(hrvalue)) AS avghr_r, crichardson5.beat_heartrate.userid AS id
+        FROM crichardson5.beat_heartrate, crichardson5.beat_event
+        WHERE
+            crichardson5.beat_heartrate.userid = %s AND
+            cat='rest' AND
+            crichardson5.beat_heartrate.time_stamp BETWEEN %s AND %s
+    GROUP BY crichardson5.beat_heartrate.userid
+    ),
+    -- avg HR values per day in the given range
+    ( SELECT ROUND(AVG(hrvalue)) as avghr_d,USERID, DAY
+        FROM( SELECT crichardson5.beat_heartrate.USERID USERID,crichardson5.beat_heartrate.HRVALUE HRVALUE,SUBSTR(TSTART, 1, 10) AS DAY
+            FROM crichardson5.beat_heartrate, crichardson5.beat_event
+            WHERE crichardson5.beat_event.tstart BETWEEN %s AND %s AND
+                    crichardson5.beat_heartrate.time_stamp BETWEEN crichardson5.beat_event.TSTART AND crichardson5.beat_event.TEND
+                    AND cat='rest' 
+                    AND crichardson5.beat_heartrate.userid = %s) new_dates
+            GROUP BY USERID, DAY ORDER BY DAY ASC)
+WHERE id = %s
