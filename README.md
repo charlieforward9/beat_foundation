@@ -1,8 +1,6 @@
 # BEAT
 **An attempt at optimizing the routine of life using the body's engine** 
 
-
-
 ## See Projects tab for upcoming developments
 
 #### The Stack
@@ -14,10 +12,15 @@
 #### Collecting valid user input
 * Calendar (.ics) parsed using [this tool](http://www.markwk.com/data-analysis-for-apple-health.html)
   * Only events preceded by a category keyword will be counted (case insensitive):
-   * _Work_, _Rest_, _Fitness_, _Eating_, _Social_ or _Other_
+   * **_Work_, _Rest_, _Fitness_, _Eating_, _Social_ or _Other_**
 * Heart Rate (.xml) 
 
 Duplicate rows are automatically removed by the parser.
 
-###
-Camerson Keene, Thomas Pena-Reina, Dillan Maraj, Charlie Richardson
+#### Repo Layout
+* **BEAT_PROJECT** contains the applciation code, everything that makes the app run (still a local build)
+* **BEATPARSER** is the current code required to parse the calendar and heart rate data. At this point it is all located in one file and mixed up with code coming from another tool meant to collect ALL Apple Health Data.
+* **QUERIES.SQL** is the easiest way to see the queries that go into each trend. Integrated queries are in BEAT_PROJECT > myapp > views.py
+* **server_connect** still figuring out what this is. I think its to connect to the SQL database, but that may be BEAT_PROJECT > manage.py . 
+
+
